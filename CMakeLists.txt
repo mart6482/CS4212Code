@@ -87,9 +87,6 @@ find_package(glfw3 CONFIG REQUIRED)
 # Add the src directory to build the library.
 add_subdirectory(src)
 
-# Add my renderlib
-# add_subdirectory(renderlib)
-
 # Some examples
 add_subdirectory(examples)
 

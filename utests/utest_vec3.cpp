@@ -42,11 +42,14 @@ TEST_CASE("Vec3 Negation Test"){
 TEST_CASE("Vec3 Division Test"){
     vec3 v1(2.0, 4.0, 6.0);
     double t = 2.0;
+    double s = 0.0;
     v1 /= t;
 
     REQUIRE(v1.x() == 1.0);
     REQUIRE(v1.y() == 2.0);
     REQUIRE(v1.z() == 3.0);
+    REQUIRE_THROWS_AS((v1 /= s), std::runtime_error);
+    
 }
 
 
@@ -57,3 +60,4 @@ TEST_CASE("Vec3 Dot Product Test"){
 
     REQUIRE(dot_product == 12.0);
 }
+

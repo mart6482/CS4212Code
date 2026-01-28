@@ -21,6 +21,7 @@ set(UTESTS
   utest_Success
   utest_Failure
   utest_vec3
+  utest_ray
   )
 
 # 

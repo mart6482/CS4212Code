@@ -1,0 +1,12 @@
+#pragma once
+#include "Camera.h"
+
+class PerspectiveCamera : public Camera {
+    public:
+        PerspectiveCamera();
+
+        void generateRay(int i, int j, ray &r) override{
+            
+        };
+        
+};

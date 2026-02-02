@@ -1,6 +1,8 @@
 #include "Framebuffer.h"
 #include "vec3.h"
 #include "color.h"
+#include "png++/png.hpp"
+#include "handleGraphicsArgs.h"
 
 Framebuffer::Framebuffer():width(100), height(100), fbStorage(width*height){}
 
@@ -13,7 +15,17 @@ void Framebuffer::clearToColor(color c){
 }
 
 void Framebuffer::exportAsPNG(std::string filename){
-    
+    int w = width, h = height;
+    png::image< png::rgb_pixel > imData( w, h );
+    for (unsigned int idx=0; idx<imData.get_height()*imData.get_width(); ++idx)
+    {
+        size_t x = idx % w;
+        size_t y = static_cast<size_t>( floor(idx / static_cast<float>(imData.get_width())) );
+
+        // non-checking equivalent of image.set_pixel(x, y, ...);
+    imData[y][x] = png::rgb_pixel(static_cast<unsigned char>(fbStorage[idx].x()*255), static_cast<unsigned char>(fbStorage[idx].y()*255), static_cast<unsigned char>(fbStorage[idx].z()*255));
+    }
+    imData.write(filename);
 }
 
 void Framebuffer::setPixelColor(int i, int j, color c) {

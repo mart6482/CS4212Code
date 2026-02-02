@@ -13,10 +13,31 @@ void Framebuffer::clearToColor(color c){
 }
 
 void Framebuffer::exportAsPNG(std::string filename){
-    //write this later
+    
 }
 
-void Framebuffer::setPixelColor(int i, int j, color c){
-    //placeholder
+void Framebuffer::setPixelColor(int i, int j, color c) {
+    if (i < 0 || i >= width || j < 0 || j >= height) return;
+    fbStorage[j * width + i] = c;
 }
 
+void Framebuffer::setPixelColor(int index, color c) {
+    if (index < 0 || index >= static_cast<int>(fbStorage.size())) return;
+    fbStorage[index] = c;
+}
+
+void Framebuffer::clearToGradient( color c0, color c1 )
+{
+  for (auto x=0; x<width; x++) {
+    for (auto y=0; y<height; y++) {
+      
+      float t = y / (float)height;
+  
+      // need to loop over and lerp here...
+      color c2 = c0 * (1-t) + c1 * t;
+  
+      int idx = y * width + x;
+      fbStorage[idx] = c2;
+    }
+  }
+}

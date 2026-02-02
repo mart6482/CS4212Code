@@ -13,6 +13,7 @@ class Framebuffer{
         void setPixelColor(int i, int j, color c);
         void setPixelColor(int index, color c);
         void exportAsPNG(std::string filename);
+        void clearToGradient( color c0, color c1 );
         
     
         private:

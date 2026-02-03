@@ -93,4 +93,12 @@ inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
 }
 
+
+inline vec3 normalize(const vec3& v)
+{
+    float len = v.length();
+    if (len == 0.0f) return v;
+    return v / len;
+}
+
 #endif

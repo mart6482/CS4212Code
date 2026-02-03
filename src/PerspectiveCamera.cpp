@@ -24,27 +24,31 @@ PerspectiveCamera::PerspectiveCamera( vec3 origin, vec3 viewdir, float focalleng
   : Camera(nx, ny)
 {
   pos = origin;
-  W = -viewdir;
+  W = -normalize(viewdir);
+  focalLength = focallength;
+  imagePlaneHeight = imageplaneHeight;
+  imagePlaneWidth = imageplaneWidth;
  
   U = cross(vec3(0,1,0), W);
   if (U.length() == 0) {
     U = cross(vec3(1,0,0), W);
   }
- 
-  V = cross(W,U);
-
-  l = -imagePlaneWidth/2.0;
-  r = imagePlaneWidth/2.0;
-  b = -imagePlaneHeight/2.0;
-  t = imagePlaneHeight/2.0;
+  U = normalize(U);
+  V = normalize(cross(W,U));
+  l = -imagePlaneWidth/2.0f;
+  r = imagePlaneWidth/2.0f;
+  b = -imagePlaneHeight/2.0f;
+  t = imagePlaneHeight/2.0f;
+  
 }
 
-ray PerspectiveCamera::generateRay( int i, int j )
+ray PerspectiveCamera::generateRay(int i, int j)
 {
-    float u, v;
-    u = l + (r-l) * (i+0.5)/(float)nx;
-    v = b + (t-b) * (j+0.5)/(float)ny;
-    
-    ray tempRay( pos, -W*focalLength + U*u + V*v );
-    return tempRay;
-  }
+    float u = l + (r-l) * (i+0.5f) / nx;
+    float v = b + (t-b) * (j+0.5f) / ny;
+
+    vec3 dir = -W * focalLength + U * u + V * v;
+    dir = normalize(dir);
+
+    return ray(pos, dir);
+}

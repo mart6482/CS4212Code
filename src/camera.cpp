@@ -9,7 +9,10 @@ Camera::Camera()
 
 Camera::Camera( int pixel_nx, int pixel_ny )
   : pos(0,0,0), U(1,0,0), V(0,1,0), W(0,0,1),
-    focalLength(1.0), imagePlaneWidth(0.25), imagePlaneHeight(0.25),
+    focalLength(1.0), 
     nx(pixel_nx), ny(pixel_ny)
 {
+    imagePlaneWidth = 0.25;
+    float aspectRatio = static_cast<float>(pixel_nx) / static_cast<float>(pixel_ny);
+    imagePlaneHeight = imagePlaneWidth / aspectRatio;
 }

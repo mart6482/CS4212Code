@@ -3,11 +3,15 @@
 PerspectiveCamera::PerspectiveCamera()
   : Camera()
 {
+  U = vec3(1,0,0);
+  V = vec3(0,1,0);
+  W = vec3(0,0,1);
   l = -imagePlaneWidth/2.0;
   r = imagePlaneWidth/2.0;
 
   b = -imagePlaneHeight/2.0;
   t = imagePlaneHeight/2.0;
+  pos = vec3(0,0,0);
 }
 
 PerspectiveCamera::PerspectiveCamera(int pixel_nx, int pixel_ny)
@@ -15,9 +19,12 @@ PerspectiveCamera::PerspectiveCamera(int pixel_nx, int pixel_ny)
 {
   l = -imagePlaneWidth/2.0;
   r = imagePlaneWidth/2.0;
-
+  U = vec3(1,0,0);
+  V = vec3(0,1,0);
+  W = vec3(0,0,1);
   b = -imagePlaneHeight/2.0;
   t = imagePlaneHeight/2.0;
+  pos = vec3(0,0,0);
 }
 
 PerspectiveCamera::PerspectiveCamera( vec3 origin, vec3 viewdir, float focallength, float imageplaneWidth, float imageplaneHeight, int nx, int ny)

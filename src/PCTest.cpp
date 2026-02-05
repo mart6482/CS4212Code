@@ -12,7 +12,6 @@ int main (){
     float imagePlaneHeight = 0.5f;
 
     PerspectiveCamera customCam(position, direction, focalLength, imagePlaneWidth, imagePlaneHeight, width, height);
-    ray testRay = customCam.generateRay(width/2, height/2);
     fb.clearToColor(color(0.0, 0.0, 0.0));
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {

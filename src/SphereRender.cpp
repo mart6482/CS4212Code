@@ -10,7 +10,7 @@ int main() {
     Framebuffer fb(width, height);
 
     vec3 sphereCenter = vec3(0.0f, 0.0f, -15.0f);
-    float sphereRadius = 1.0f;
+    float sphereRadius = 0.7f;
     sphere mySphere(sphereCenter, sphereRadius);
     PerspectiveCamera defaultCam(width, height);
 

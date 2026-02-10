@@ -6,7 +6,7 @@
 
 
 int main() {
-    int width = 900;
+    /*int width = 900;
     int height = 600;
     Framebuffer fb(width, height);
 
@@ -27,7 +27,7 @@ int main() {
     }
     
 
-    fb.exportAsPNG("JapanFlagTest2.png");
+    fb.exportAsPNG("JapanFlagTest2.png");*/
 
     int width = 200;
     int height = 200;
@@ -43,7 +43,7 @@ int main() {
             if(myTriangle.intersect(r)) {
                 fb.setPixelColor(x, height - 1 - y, color(1.0f, 0.0f, 0.0f));
             } else {
-                fb.setPixelColor(x, height - 1 - y, color(1.0f, 1.0f, 1.0f));
+                fb.setPixelColor(x, height - 1 - y, color(0.0f, 1.0f, 0.0f));
             }
         }
     }

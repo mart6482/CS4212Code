@@ -4,6 +4,7 @@ class sphere : public shape{
 
     public:
         sphere(vec3 c, float r): center(c), radius(r) {}
+        sphere() : center(vec3(0.0f, 0.0f, 0.0f)), radius(1.0f) {}
         bool intersect(const ray& r) const override{
             vec3 oc = r.getOrigin() - center;
             float a = dot(r.getDirection(), r.getDirection());

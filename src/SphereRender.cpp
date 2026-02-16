@@ -1,12 +1,16 @@
 #include "sphere.h"
 #include "Framebuffer.h"
 #include "PerspectiveCamera.h"
-#include "triangle.h"
+#include "Triangle.h"
+#include "Lambertian.h"
+#include "Blinn-Phong.h"
 
 
 
 int main() {
-    /*int width = 900;
+    //std::shared_ptr<shape> mySphere = std::make_shared<sphere>(vec3(0.0f, 0.0f, -15.0f), 0.7f);
+    //std::shared_ptr<shape> myTriangle = std::make_shared<Triangle>(vec3(0.0f, 1.0f, -10.0f), vec3(-1.0f, -1.0f, -10.0f), vec3(1.0f, -1.0f, -10.0f));
+    int width = 900;
     int height = 600;
     Framebuffer fb(width, height);
 
@@ -14,41 +18,59 @@ int main() {
     float sphereRadius = 0.7f;
     sphere mySphere(sphereCenter, sphereRadius);
     PerspectiveCamera defaultCam(width, height);
+    hit_record rec;
+    Lambertian lambertianShader;
+    BlinnPhong blinnPhongShader;
 
     for(int x = 0; x < width; ++x) {
         for(int y = 0; y < height; ++y) {
             ray r = defaultCam.generateRay(x, y);
-            if(mySphere.intersect(r)) {
-                fb.setPixelColor(x, y, color(1.0f, 0.0f, 0.0f));
+            if(mySphere.intersect(r, 0.001f, 100.0f, rec)) {
+                color c = lambertianShader.shade(rec) * color(1.0f, 0.0f, 0.0f);
+                fb.setPixelColor(x, y, c);
             } else {
-                fb.setPixelColor(x, y, color(1.0f, 1.0f, 1.0f));
+                fb.setPixelColor(x, y, color(1.0f, 0.0f, 1.0f));
             }
         }
     }
     
 
-    fb.exportAsPNG("JapanFlagTest2.png");*/
+    fb.exportAsPNG("SphereShaderTest.png");
 
-    int width = 200;
-    int height = 200;
-    Framebuffer fb(width, height);
+    fb.clearToColor(color(0.0f, 0.0f, 0.0f));
+    for(int x = 0; x < width; ++x) {
+        for(int y = 0; y < height; ++y) {
+            ray r = defaultCam.generateRay(x, y);
+            if(mySphere.intersect(r, 0.001f, 100.0f, rec)) {
+                color c = blinnPhongShader.shade(rec) * color(1.0f, 0.0f, 0.0f);
+                fb.setPixelColor(x, y, c);
+            } else {
+                fb.setPixelColor(x, y, color(0.0f, 1.0f, 0.0f));
+            }
+        }
+    }
+    fb.exportAsPNG("SphereBlinnPhongTest.png");
+
+    width = 200;
+    height = 200;
     vec3 TriangleVertexA(0.0f, 1.0f, -10.0f);
     vec3 TriangleVertexB(-1.0f, -1.0f, -10.0f);
     vec3 TriangleVertexC(1.0f, -1.0f, -10.0f); 
     Triangle myTriangle(TriangleVertexA, TriangleVertexB, TriangleVertexC);
-    PerspectiveCamera defaultCam(width, height);
+    fb = Framebuffer(width, height);
     for(int x = 0; x < width; ++x) {
         for(int y = 0; y < height; ++y) {
             ray r = defaultCam.generateRay(x, y);
-            if(myTriangle.intersect(r)) {
-                fb.setPixelColor(x, height - 1 - y, color(1.0f, 0.0f, 0.0f));
+            if(myTriangle.intersect(r, 0.001f, 100.0f, rec)) {
+                color c = lambertianShader.shade(rec);
+                fb.setPixelColor(x, height - 1 - y, c);
             } else {
-                fb.setPixelColor(x, height - 1 - y, color(0.0f, 1.0f, 0.0f));
+                fb.setPixelColor(x, height - 1 - y, color(1.0f, 0.0f, 0.0f));
             }
         }
     }
 
-    fb.exportAsPNG("TriangleTest.png");
+    fb.exportAsPNG("TriangleShaderTest.png");
 
 
     

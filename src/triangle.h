@@ -2,6 +2,7 @@
 
 #include "vec3.h"
 #include "shape.h"
+#include "HitStructure.h"
 
 class Triangle : public shape {
     public:
@@ -9,7 +10,7 @@ class Triangle : public shape {
         Triangle(const vec3& vertex_a, const vec3& vertex_b, const vec3 &vertex_c)
             : vertex_a(vertex_a), vertex_b(vertex_b), vertex_c(vertex_c) { }
 
-        bool intersect(const ray& r) const override;
+        bool intersect(const ray& r, float t_min, float t_max, hit_record& rec) const override;
         
     private:
         vec3 vertex_a;

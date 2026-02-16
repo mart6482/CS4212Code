@@ -2,13 +2,16 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+hit_record rec;
+
+
 TEST_CASE("Sphere Intersection Test") {
     vec3 center(0.0f, 0.0f, -5.0f);
     float radius = 1.0f;
     sphere s(center, radius);
 
     ray r(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f));
-    REQUIRE(s.intersect(r) == true);
+    REQUIRE(s.intersect(r, 0.001f, 100.0f, rec) == true);
 }
 
 TEST_CASE("Sphere No Intersection Test") {
@@ -17,7 +20,7 @@ TEST_CASE("Sphere No Intersection Test") {
     sphere s(center, radius);
 
     ray r(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f));
-    REQUIRE(s.intersect(r) == false);
+    REQUIRE(s.intersect(r, 0.001f, 100.0f, rec) == false);
 }
 
 TEST_CASE("Sphere Tangent Intersection Test") {
@@ -26,7 +29,7 @@ TEST_CASE("Sphere Tangent Intersection Test") {
     sphere s(center, radius);
 
     ray r(vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f));
-    REQUIRE(s.intersect(r) == true);
+    REQUIRE(s.intersect(r, 0.001f, 100.0f, rec) == true);
 }
 
 TEST_CASE("Sphere Intersection With Ray Origin Inside Sphere Test") {
@@ -35,7 +38,7 @@ TEST_CASE("Sphere Intersection With Ray Origin Inside Sphere Test") {
     sphere s(center, radius);
 
     ray r(vec3(0.0f, 0.0f, -5.0f), vec3(0.0f, 1.0f, 0.0f));
-    REQUIRE(s.intersect(r) == true);
+    REQUIRE(s.intersect(r, 0.001f, 100.0f, rec) == true);
 }
 
 TEST_CASE("Sphere Intersection With Ray Pointing Away Test") {
@@ -44,5 +47,5 @@ TEST_CASE("Sphere Intersection With Ray Pointing Away Test") {
     sphere s(center, radius);
 
     ray r(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-    REQUIRE(s.intersect(r) == false);
+    REQUIRE(s.intersect(r, 0.001f, 100.0f, rec) == false);
 }    

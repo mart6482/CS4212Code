@@ -8,7 +8,7 @@
 
 
 int main() {
-    //std::shared_ptr<shape> mySphere = std::make_shared<sphere>(vec3(0.0f, 0.0f, -15.0f), 0.7f);
+    
     //std::shared_ptr<shape> myTriangle = std::make_shared<Triangle>(vec3(0.0f, 1.0f, -10.0f), vec3(-1.0f, -1.0f, -10.0f), vec3(1.0f, -1.0f, -10.0f));
     int width = 900;
     int height = 600;
@@ -17,6 +17,9 @@ int main() {
     vec3 sphereCenter = vec3(0.0f, 0.0f, -15.0f);
     float sphereRadius = 0.7f;
     sphere mySphere(sphereCenter, sphereRadius);
+    sphere mysphere2 (vec3(1.0f, 0.0f, -10.0f), 0.7f);
+    sphere mysphere3 (vec3(-1.0f, 0.0f, -10.0f), 0.7f);
+    //std::shared_ptr<shape> mySphere = std::make_shared<sphere>(mySphere, mysphere2, mysphere3);
     PerspectiveCamera defaultCam(width, height);
     hit_record rec;
     Lambertian lambertianShader;
@@ -28,8 +31,15 @@ int main() {
             if(mySphere.intersect(r, 0.001f, 100.0f, rec)) {
                 color c = lambertianShader.shade(rec) * color(1.0f, 0.0f, 0.0f);
                 fb.setPixelColor(x, y, c);
+            } else if (mysphere2.intersect(r, 0.001f, 100.0f, rec)) {
+                color c = lambertianShader.shade(rec) * color(0.0f, 1.0f, 0.0f);
+                fb.setPixelColor(x, y, c);
+            } else if (mysphere3.intersect(r, 0.001f, 100.0f, rec)) {
+                color c = lambertianShader.shade(rec) * color(0.0f, 0.0f, 1.0f);
+                fb.setPixelColor(x, y, c);
             } else {
-                fb.setPixelColor(x, y, color(1.0f, 0.0f, 1.0f));
+                color c = lambertianShader.shade(rec) * color(0.2f, 0.2f, 0.2f);
+                fb.setPixelColor(x, y, c);
             }
         }
     }
@@ -42,7 +52,7 @@ int main() {
         for(int y = 0; y < height; ++y) {
             ray r = defaultCam.generateRay(x, y);
             if(mySphere.intersect(r, 0.001f, 100.0f, rec)) {
-                color c = blinnPhongShader.shade(rec) * color(1.0f, 0.0f, 0.0f);
+                color c = blinnPhongShader.shade(rec) * color(1.0f, 1.0f, 1.0f);
                 fb.setPixelColor(x, y, c);
             } else {
                 fb.setPixelColor(x, y, color(0.0f, 1.0f, 0.0f));

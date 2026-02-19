@@ -9,7 +9,8 @@ class hit_record {
     vec3 normal;
     double t;
 
-    hit_record() : p(point3(0,0,0)), normal(vec3(0,0,0)), t(0) {}
+    hit_record() : p(point3(0,0,0)), normal(vec3(0,0,0)), t(0){}
+    
 };
 
 class hittable {

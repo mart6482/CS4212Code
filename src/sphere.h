@@ -27,6 +27,8 @@ class sphere : public shape{
             rec.t = root;
             rec.p = r.at(rec.t);
             rec.normal = (rec.p - center) / radius;
+        
+
                 return true;
             }
 

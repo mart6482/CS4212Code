@@ -13,9 +13,18 @@ color BlinnPhong::shade(const hit_record& hit) const {
     // Compute Blinn-Phong component
     vec3 halfVector = normalize(view_dir + light_dir);
     float nDotH = std::max(0.0, dot(hit.normal, halfVector));
-    float BlinnPhongExponent = 2.0f;
+    float BlinnPhongExponent = 32.0f;
     color BlinnPhongComponent = color(pow(nDotH, BlinnPhongExponent), pow(nDotH, BlinnPhongExponent), pow(nDotH, BlinnPhongExponent));
-    return LambertianComponent + BlinnPhongComponent;
+    color result = LambertianComponent + BlinnPhongComponent;
+
+    //clamp the result to [0, 1]
+    if (result.x() > 1.0f) result[0] = 1.0f;
+    if (result.y() > 1.0f) result[1] = 1.0f;
+    if (result.z() > 1.0f) result[2] = 1.0f;
+    if (result.x() < 0.0f) result[0] = 0.0f;
+    if (result.y() < 0.0f) result[1] = 0.0f;
+    if (result.z() < 0.0f) result[2] = 0.0f;
+    return result;
 
     
 }

@@ -31,7 +31,7 @@ int main() {
     hit_record rec;
     Lambertian lambertianShader;
     BlinnPhong blinnPhongShader;
-    int rpp_NSquare = 4;
+    int rpp_NSquare = 8;
     for(int x = 0; x < width; ++x) {
         for(int y = 0; y < height; ++y) {
             color c = color(0.0f, 0.0f, 0.0f);

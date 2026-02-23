@@ -44,9 +44,9 @@ bool Triangle::intersect( const ray &r, float t_min, float t_max, hit_record& re
     if (t < t_min || t > t_max) {
         return false;
     }
-    return true;
-
+    
     rec.t = t;
     rec.p = r.at(rec.t);
     rec.normal = normalize(cross(vertex_b - vertex_a, vertex_c - vertex_a));
+    return true;
 }

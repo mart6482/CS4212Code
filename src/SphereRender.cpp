@@ -44,17 +44,32 @@ int main() {
                     float pOffset = (p + randomFloat())/rpp_NSquare;
                     float qOffset = (q + randomFloat())/rpp_NSquare;
                     ray r = defaultCam.generateRay(x + pOffset, y + qOffset);
-                    if(mySphere.intersect(r, tmin, tmax, rec)) {
-                        c = c + lambertianShader.shade(rec) * color(1.0f, 0.0f, 0.0f);
-                    } else if (mysphere2.intersect(r, tmin, tmax, rec)) {
-                        c = c + lambertianShader.shade(rec) * color(0.0f, 1.0f, 0.0f);
-                    } else if (mysphere2.intersect(r, tmin, tmax, rec)) {
-                        c = c + lambertianShader.shade(rec) * color(0.0f, 1.0f, 0.0f);
-                    } else if (mysphere3.intersect(r, tmin, tmax, rec)) {
-                        c = c + lambertianShader.shade(rec) * color(0.0f, 0.0f, 1.0f);
-                    } else {
-                        c = c + color(0.2f, 0.2f, 0.2f);
+                    float closest_t = tmax;
+                    bool hitAnything = false;
+                    color hitColor;
+
+                    if (mySphere.intersect(r, tmin, closest_t, rec)) {
+                        hitAnything = true;
+                        closest_t = rec.t;
+                        hitColor = lambertianShader.shade(rec) * color(1,0,0);
                     }
+
+                    if (mysphere2.intersect(r, tmin, closest_t, rec)) {
+                        hitAnything = true;
+                        closest_t = rec.t;
+                        hitColor = lambertianShader.shade(rec) * color(0,1,0);
+                    }
+
+                    if (mysphere3.intersect(r, tmin, closest_t, rec)) {
+                        hitAnything = true;
+                        closest_t = rec.t;
+                        hitColor = lambertianShader.shade(rec) * color(0,0,1);
+                    }
+
+                    if (hitAnything)
+                        c += hitColor;
+                    else
+                        c += color(0.2f, 0.2f, 0.2f);
                 }
             }
 

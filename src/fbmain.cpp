@@ -3,94 +3,99 @@
 #include <memory>
 #include <limits>
 #include "Framebuffer.h"
+#include "camera.h"
 #include "PerspectiveCamera.h"
 #include "ray.h"
 #include "Shape.h"
 #include "Sphere.h"
+#include "Triangle.h"
 #include "NormalShader.h"
 #include "Lambertian.h"
 #include "Blinn-Phong.h"
 #include "Light.h"
+#include "RayTracer.h"
+#include "MirrorShader.h"
+#include "DiffuseShader.h"
+#include <random>
 
-vec3 computeRayColor(const ray &r, const std::vector<std::shared_ptr<Shape>> &shapes, const std::vector<std::shared_ptr<PointLight>> &lights)
+
+float randomOffset()
 {
-  float t_min = 0.001f;
-  float t_max = std::numeric_limits<float>::max();
-
-  hit_record closestHit;
-  closestHit.t = t_max;
-  bool hitAnything = false;
-
-  // Check intersection with all shapes, find closest
-  for (const auto &shape : shapes) {
-    hit_record tempHit;
-    if (shape->intersect(r, t_min, t_max, tempHit)) {
-      if (tempHit.t < closestHit.t) {
-        closestHit = tempHit;
-        hitAnything = true;
-        t_max = tempHit.t;
-      }
-    }
-  }
-
-  if (hitAnything) {
-    auto shader = closestHit.shape->getShader();
-    if (shader) {
-      return shader->shade(closestHit, lights);
-    } else {
-      normalShader defaultShader;
-      return defaultShader.shade(closestHit, lights);
-    }
-  }
-
-  // Background color
-  vec3 unit_direction = unit_vector(r.getDirection());
-  auto a = 0.5 * (unit_direction.y() + 1.0);
-  return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
+  static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+  static std::mt19937 generator;
+  return distribution(generator);
 }
 
 int main(int argc, char *argv[])
 {
+
+  //Framebuffer
   int width = 800;
   int height = 800;
   Framebuffer fb(width, height);
 
-  // Camera setup
-  PerspectiveCamera cam(vec3(0, 0, 0), vec3(0, 0, -1), 1.0, 2.0, 2.0, width, height);
+  // Camera 
+  PerspectiveCamera cam(vec3(0, 3.0, 2.0), vec3(0, -1.5, -3.0), .4, 0.6, 0.6, width, height);
 
-  // Create scene with three spheres
   std::vector<std::shared_ptr<Shape>> shapes;
 
-  // Create shaders
+  //shaders
   auto lambertianShader = std::make_shared<Lambertian>();
   auto blinnPhongShader = std::make_shared<BlinnPhong>();
   blinnPhongShader->setEyePosition(cam.getPosition());
+  auto mirrorShader = std::make_shared<MirrorShader>();
+  auto diffuseGroundShader = std::make_shared<DiffuseShader>(vec3(0.8, 0.8, 0.8));
+  auto diffuse_redShader = std::make_shared<DiffuseShader>(vec3(1.0, 0.0, 0.0));
 
-  // Create lights, for now one point light only
+
+  //lights
   std::vector<std::shared_ptr<PointLight>> lights;
-  lights.push_back(std::make_shared<PointLight>(vec3(2, 3, 1), vec3(1.0, 1.0, 1.0)));
+  lights.push_back(std::make_shared<PointLight>(vec3(3, 5, 2), vec3(1.0, 1.0, 1.0)));
+  lights.push_back(std::make_shared<PointLight>(vec3(-3, 5, 2), vec3(1.0, 1.0, 1.0)));
 
-  // Sphere 1: Normal Shader (left)
+  //objects
+  // Ground plane: Diffuse shader
+  shapes.push_back(std::make_shared<Triangle>(
+    vec3(0, 0, 5), vec3(200, 0, -200), vec3(-200, 0, -200), vec3(0.8, 0.8, 0.8), diffuseGroundShader));
+    
+  // Blue sphere: Lambertian shader
   shapes.push_back(std::make_shared<Sphere>(
-    vec3(-1.2, 0, -2.5), 0.5f, vec3(0.8, 0.3, 0.3)));
+    vec3(-2.5, 1.0, -4.0), 1.0f, vec3(0.0, 0.0, 1.0), lambertianShader));
 
-  // Sphere 2: Lambertian Shader (center)
+  // Green sphere: Blinn-Phong shader
   shapes.push_back(std::make_shared<Sphere>(
-    vec3(0, 0, -2.5), 0.5f, vec3(0.3, 0.8, 0.3), lambertianShader));
+    vec3(0, 1.0, -5.0), 1.0f, vec3(0.0, 1.0, 0.0), blinnPhongShader));
 
-  // Sphere 3: Blinn-Phong Shader (right)
+  // Red sphere: Diffuse shader
   shapes.push_back(std::make_shared<Sphere>(
-    vec3(1.2, 0, -2.5), 0.5f, vec3(0.3, 0.3, 0.8), blinnPhongShader));
+    vec3(-1.3, 0.8, -1), 0.8f, vec3(1.0, 0.0, 0.0), diffuse_redShader));
 
+  // Mirror sphere: Mirror shader
+  shapes.push_back(std::make_shared<Sphere>(
+    vec3(1.5, 1.2, -2.5), 1.10f, vec3(0.8, 0.8, 0.8), mirrorShader));
+
+  int maxDepth = 4;
+  int rpp_NSquare = 4; // Rays per pixel = rpp_NSquare^2
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
-      ray r = cam.generateRay(x, y);
-      vec3 pixelColor = computeRayColor(r, shapes, lights);
-      fb.setPixelColor(x, y, pixelColor);
+      vec3 accumulatedColor(0, 0, 0);
+      
+      for(int p = 0; p < rpp_NSquare; p++){
+        for(int q = 0; q < rpp_NSquare; q++){
+          float pOffset = (p + randomOffset()) / rpp_NSquare;
+          float qOffset = (q + randomOffset()) / rpp_NSquare;
+
+          ray r = cam.generateRay(x + pOffset, y + qOffset);
+          accumulatedColor += computeRayColor(r, shapes, lights, maxDepth);
+        }
+      }
+
+      vec3 pixelColor = accumulatedColor / (float)(rpp_NSquare * rpp_NSquare);
+      fb.setPixelColor(x, height - y - 1, pixelColor);
     }
   }
 
-  fb.exportAsPNG("three_shaders.png");
+  fb.exportAsPNG("ALL_shaders.png");
 
   return 0;
 }

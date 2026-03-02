@@ -2,7 +2,7 @@
 
 bool Sphere::intersect(const ray& r, float t_min, float& t_max, hit_record& hit) const
 {
-    vec3 oc = r.getDirection() - center;
+    vec3 oc = r.getOrigin() - center;
 
     float a = dot(r.getDirection(), r.getDirection());
     float b = 2.0f * dot(oc, r.getDirection());

@@ -1,10 +1,11 @@
 #include "Blinn-Phong.h"
 #include "HitStructure.h"
-#include "color.h"
+#include "vec3.h"
+#include "shape.h"
 #include <vector>
 
-color BlinnPhong::shade(const hit_record& hit, const std::vector<std::shared_ptr<PointLight>>& lights){
-    vec3 materialColor = hit.shape->getcolor();
+vec3 BlinnPhong::shade(const hit_record& hit, const std::vector<std::shared_ptr<PointLight>>& lights){
+    vec3 materialColor = hit.shape->getColor();
     vec3 color = vec3(0.0f, 0.0f, 0.0f);
 
     float kd = 1.0f;
@@ -31,6 +32,5 @@ color BlinnPhong::shade(const hit_record& hit, const std::vector<std::shared_ptr
     return color;
 }
 
-BlinnPhong::~BlinnPhong() {}
 
 

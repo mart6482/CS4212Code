@@ -1,6 +1,6 @@
 #include "Sphere.h"
 
-bool Sphere::intersect(const ray& r, float t_min, float t_max, hit_record& hit) const
+bool Sphere::intersect(const ray& r, float t_min, float& t_max, hit_record& hit) const
 {
     vec3 oc = r.getDirection() - center;
 

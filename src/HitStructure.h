@@ -2,15 +2,20 @@
 #define HITTABLE_H
 
 #include "ray.h"
+//#include "shape.h"
+#include "vec3.h"
+#include <memory>
+
+class Shape;
 
 class hit_record {
   public:
     point3 p;
     vec3 normal;
     double t;
-    const shape* shape;
+    const Shape* shape;
 
-    hit_record() : p(point3(0,0,0)), normal(vec3(0,0,0)), t(0){}
+    hit_record() : p(point3(0,0,0)), normal(vec3(0,0,0)), t(0), shape(nullptr){}
     
 };
 

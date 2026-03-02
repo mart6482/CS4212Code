@@ -3,6 +3,7 @@
 #include "vec3.h"
 #include "shape.h"
 #include "HitStructure.h"
+#include <memory>
 
 class Triangle : public Shape {
     public:

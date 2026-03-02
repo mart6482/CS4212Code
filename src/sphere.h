@@ -14,7 +14,7 @@ public:
     Sphere(vec3 c, float r, vec3 col): center(c), radius(r), color(col), shader(nullptr) {}
     Sphere(vec3 c, float r, vec3 col, std::shared_ptr<shader> shd): center(c), radius(r), color(col), shader(shd) {}
 
-    bool intersect(const ray& ray, float t_min, float t_max, hit_record& rec) const override;
+    bool intersect(const ray& ray, float t_min, float& t_max, hit_record& rec) const override;
     vec3 getColor() const override;
     std::shared_ptr<shader> getShader() const override;
 private:

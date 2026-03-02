@@ -51,11 +51,18 @@ PerspectiveCamera::PerspectiveCamera( vec3 origin, vec3 viewdir, float focalleng
 
 ray PerspectiveCamera::generateRay(int i, int j)
 {
-    float u = l + (r-l) * (i+0.5f) / nx;
-    float v = b + (t-b) * (j+0.5f) / ny;
+    float u = l + (r - l) * (i + 0.5) / (float)nx;
+    float v = b + (t - b) * (j + 0.5) / (float)ny;
+    vec3 rayDir = -focalLength * W + u * U + v * V;
 
-    vec3 dir = -W * focalLength + U * u + V * v;
-    dir = normalize(dir);
+    return ray(pos, rayDir);
+}
 
-    return ray(pos, dir);
+ray PerspectiveCamera::generateRay(float i, float j)
+{
+    float u = ((i + 0.5) / (float)nx) * (r - l) + l;
+    float v = ((j + 0.5) / (float)ny) * (t - b) + b;
+    vec3 rayDir = -focalLength * W + u * U + v * V;
+
+    return ray(pos, rayDir);
 }

@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 #include <limits>
+#include "handleGraphicsArgs.h"
+#include "ArgumentParsing.h"
 #include "Framebuffer.h"
 #include "camera.h"
 #include "PerspectiveCamera.h"
@@ -19,6 +21,8 @@
 #include <random>
 
 
+
+
 float randomOffset()
 {
   static std::uniform_real_distribution<float> distribution(0.0, 1.0);
@@ -28,10 +32,25 @@ float randomOffset()
 
 int main(int argc, char *argv[])
 {
+  //process args
+  sivelab::GraphicsArgs args;
+  args.process(argc, argv);
+
+  int width = args.width;
+  int height = args.height;
+  int maxDepth = args.recursionDepth;
+  int rpp_NSquare = args.rpp;
+
+  //debug print out args
+  /*std::cout << "Argc = " << argc << std::endl;
+  std::cout << "Width: " << args.width << std::endl;
+  std::cout << "Height: " << args.height << std::endl;
+  std::cout << "rpp: " << args.rpp << std::endl;
+  std::cout << "Recursion Depth: " << args.recursionDepth << std::endl;*/
+
+
 
   //Framebuffer
-  int width = 800;
-  int height = 800;
   Framebuffer fb(width, height);
 
   // Camera 
@@ -74,8 +93,7 @@ int main(int argc, char *argv[])
   shapes.push_back(std::make_shared<Sphere>(
     vec3(1.5, 1.2, -2.5), 1.10f, vec3(0.8, 0.8, 0.8), mirrorShader));
 
-  int maxDepth = 4;
-  int rpp_NSquare = 4; // Rays per pixel = rpp_NSquare^2
+  
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
       vec3 accumulatedColor(0, 0, 0);

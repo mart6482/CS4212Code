@@ -8,6 +8,7 @@ class hit_record {
     point3 p;
     vec3 normal;
     double t;
+    const shape* shape;
 
     hit_record() : p(point3(0,0,0)), normal(vec3(0,0,0)), t(0){}
     

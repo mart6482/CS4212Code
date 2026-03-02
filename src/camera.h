@@ -10,6 +10,7 @@ class Camera {
         virtual ray generateRay( int i, int j ) = 0;
 
         virtual ~Camera() {};
+        vec3 getPosition() const { return pos; }
         
 
         //fix/implement these later

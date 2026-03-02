@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -18,6 +19,7 @@
 #include "RayTracer.h"
 #include "MirrorShader.h"
 #include "DiffuseShader.h"
+#include <cmath>
 #include <random>
 
 
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
   Framebuffer fb(width, height);
 
   // Camera 
-  PerspectiveCamera cam(vec3(0, 3.0, 2.0), vec3(0, -1.5, -3.0), .4, 0.6, 0.6, width, height);
+  PerspectiveCamera cam(vec3(0, 4.0, 2.0), vec3(0, -2, -3.0), .4, 0.6, 0.6, width, height);
 
   std::vector<std::shared_ptr<Shape>> shapes;
 
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
   // Ground plane: Diffuse shader
   shapes.push_back(std::make_shared<Triangle>(
     vec3(0, 0, 5), vec3(200, 0, -200), vec3(-200, 0, -200), vec3(0.8, 0.8, 0.8), diffuseGroundShader));
-    
+  /*
   // Blue sphere: Lambertian shader
   shapes.push_back(std::make_shared<Sphere>(
     vec3(-2.5, 1.0, -4.0), 1.0f, vec3(0.0, 0.0, 1.0), lambertianShader));
@@ -82,9 +84,55 @@ int main(int argc, char *argv[])
 
   // Mirror sphere: Mirror shader
   shapes.push_back(std::make_shared<Sphere>(
-    vec3(1.5, 1.2, -2.5), 1.10f, vec3(0.8, 0.8, 0.8), mirrorShader));
+    vec3(1.5, 1.2, -2.5), 1.10f, vec3(0.8, 0.8, 0.8), mirrorShader));*/
 
-  
+  // Central mirror sphere
+  vec3 center(0.0f, 1.0f, -4.0f);
+  shapes.push_back(std::make_shared<Sphere>(
+      center, 1.2f, vec3(0.9, 0.9, 0.9), mirrorShader));
+
+  // Surrounding spheres in a circle
+  float radiusFromCenter = 3.0f;
+  float sphereRadius = 0.7f;
+  std::vector<std::shared_ptr<shader>> shaderList = {
+      lambertianShader,
+      blinnPhongShader,
+      lambertianShader,
+      blinnPhongShader,
+      lambertianShader,
+      blinnPhongShader,
+      lambertianShader,
+      diffuse_redShader
+  };
+
+  std::vector<vec3> colors = {
+      vec3(1,0,0),
+      vec3(1,.5,0),
+      vec3(1,1,0),
+      vec3(0,1,0),
+      vec3(0,1,.5),
+      vec3(0,1,1),
+      vec3(0,0,1),
+      vec3(0.5,0,1)
+  };
+
+  for (int i = 0; i < 8; i++) {
+      float angle = i * (2.0f * M_PI / 8.0f);
+
+      float x = center.x() + radiusFromCenter * cos(angle);
+      float z = center.z() + radiusFromCenter * sin(angle);
+
+      vec3 pos(x, 1.0f, z);
+
+      shapes.push_back(std::make_shared<Sphere>(
+          pos,
+          sphereRadius,
+          colors[i],
+          shaderList[i]
+      ));
+  }
+
+  // Render loop
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
       vec3 accumulatedColor(0, 0, 0);
@@ -104,7 +152,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  fb.exportAsPNG("ALL_shaders.png");
+  fb.exportAsPNG("Rainbow.png");
 
   return 0;
 }

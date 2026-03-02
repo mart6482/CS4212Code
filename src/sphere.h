@@ -36,6 +36,10 @@ class sphere : public shape{
                 return shader;
             }
 
+            vec3 getColor() const override {
+                return color;
+            }
+
     private:
         vec3 center;
         float radius;

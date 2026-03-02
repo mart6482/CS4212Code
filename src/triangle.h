@@ -14,6 +14,9 @@ class Triangle : public shape {
         std::shared_ptr<shader> getShader() const override {
                 return shader;
         }
+        vec3 getColor() const override {
+                return color;
+        }
         
     private:
         vec3 vertex_a;

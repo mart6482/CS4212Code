@@ -11,9 +11,14 @@ class Triangle : public shape {
             : vertex_a(vertex_a), vertex_b(vertex_b), vertex_c(vertex_c) { }
 
         bool intersect(const ray& r, float t_min, float t_max, hit_record& rec) const override;
+        std::shared_ptr<shader> getShader() const override {
+                return shader;
+        }
         
     private:
         vec3 vertex_a;
         vec3 vertex_b;
         vec3 vertex_c;
+        vec3 color;
+        std::shared_ptr<shader> shader;
 };

@@ -32,7 +32,13 @@ class sphere : public shape{
                 return true;
             }
 
+            std::shared_ptr<shader> getShader() const override {
+                return shader;
+            }
+
     private:
         vec3 center;
         float radius;
+        vec3 color;
+        std::shared_ptr<shader> shader;
 };

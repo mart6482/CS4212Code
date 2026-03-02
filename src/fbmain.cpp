@@ -41,15 +41,6 @@ int main(int argc, char *argv[])
   int maxDepth = args.recursionDepth;
   int rpp_NSquare = args.rpp;
 
-  //debug print out args
-  /*std::cout << "Argc = " << argc << std::endl;
-  std::cout << "Width: " << args.width << std::endl;
-  std::cout << "Height: " << args.height << std::endl;
-  std::cout << "rpp: " << args.rpp << std::endl;
-  std::cout << "Recursion Depth: " << args.recursionDepth << std::endl;*/
-
-
-
   //Framebuffer
   Framebuffer fb(width, height);
 

@@ -15,7 +15,7 @@ float randomFloat() {
 
 
 int main() {
-    
+    /*
     //std::shared_ptr<shape> myTriangle = std::make_shared<Triangle>(vec3(0.0f, 1.0f, -10.0f), vec3(-1.0f, -1.0f, -10.0f), vec3(1.0f, -1.0f, -10.0f));
     //std::shared_ptr<shape> mySphere = std::make_shared<sphere>(mySphere, mysphere2, mysphere3);
     int width = 900;
@@ -66,7 +66,7 @@ int main() {
                         } else if (floor.intersect(reflected_ray, 0.001f, std::numeric_limits<float>::infinity(), reflected_hit)) {
                             hitColor = lambertianShader.shade(reflected_hit) * color(0.1, 0.5, 0.23);
                         } else {
-                            hitColor = color(0.4f, 0.4f, 0.4f); // Reflective environment
+                            hitColor = color(0.4f, 0.4f, 0.4f); 
                         }
                     }
 

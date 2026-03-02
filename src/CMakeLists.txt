@@ -14,6 +14,10 @@ add_library (cs4212-util
   Lambertian.cpp Lambertian.h
   Blinn-Phong.h Blinn-Phong.cpp
   normalShader.h normalShader.cpp
+  Mirrorshader.h Mirrorshader.cpp
+  DiffuseShader.h DiffuseShader.cpp
+  RayTracer.h RayTracer.cpp
+  Random.h Random.cpp
 )
 target_compile_definitions(cs4212-util PUBLIC HAS_GLM)
 target_link_libraries(cs4212-util PRIVATE Boost::program_options)

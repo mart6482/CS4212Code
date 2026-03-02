@@ -70,7 +70,7 @@ namespace sivelab {
     {
         //return m_uniform_dist(m_prng);  // Need to make this safe
         //across instances and threads!
-        return drand48();
+        return m_uniform_dist(m_prng);
     }
 
     bool m_normal_value;

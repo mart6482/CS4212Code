@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
   int height = args.height;
   int maxDepth = args.recursionDepth;
   int rpp_NSquare = args.rpp;
+  
 
   //Framebuffer
   Framebuffer fb(width, height);
@@ -152,7 +153,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  fb.exportAsPNG("Rainbow.png");
+  fb.exportAsPNG(args.outputFileName);
 
   return 0;
 }

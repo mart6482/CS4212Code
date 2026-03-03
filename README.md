@@ -10,11 +10,11 @@ How to compile and run this project:
 
     Args:
     -w (int): changes the width of the image 
-    ----------------------------------------
+    
     -h (int): changes the height of the image
-    ----------------------------------------
+    
     -r (int): changes the rays sampled per pixel
-    ----------------------------------------
+    
     -k (int): changes the recursion depth used in mirror calculations
-    ----------------------------------------
+    
     -o (string): changes the name of the output file

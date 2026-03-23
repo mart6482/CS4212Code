@@ -6,6 +6,7 @@
 
 vec3 Lambertian::shade(const hit_record& hit, const ray &r, const std::vector<std::shared_ptr<PointLight>>& lights, const std::vector<std::shared_ptr<Shape>>& shapes, int depth)
 {
+    //refactor later
     vec3 materialColor = hit.shape->getColor();
     vec3 color(0.0, 0.0, 0.0);
     

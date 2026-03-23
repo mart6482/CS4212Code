@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
   //Framebuffer
   Framebuffer fb(width, height);
 
+  
   // Camera 
   PerspectiveCamera cam(vec3(0, 4.0, 2.0), vec3(0, -2, -3.0), .4, 0.6, 0.6, width, height);
 
@@ -132,6 +133,8 @@ int main(int argc, char *argv[])
           shaderList[i]
       ));
   }
+
+  
 
   // Render loop
   for (int x = 0; x < width; x++) {

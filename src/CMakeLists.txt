@@ -18,6 +18,10 @@ add_library (cs4212-util
   DiffuseShader.h DiffuseShader.cpp
   RayTracer.h RayTracer.cpp
   Random.h Random.cpp
+  #ISceneLoader.h
+  #SceneLoader.h
+  #SceneContainer.h
+  #SceneParserJSON.h SceneParserJSON.cpp
 )
 target_compile_definitions(cs4212-util PUBLIC HAS_GLM)
 target_link_libraries(cs4212-util PRIVATE Boost::program_options)
@@ -31,3 +35,7 @@ target_link_libraries(fbMain PRIVATE cs4212-util)
 target_link_libraries(fbMain PRIVATE ${Boost_PROGRAM_OPTIONS_LIBRARIES})
 target_link_libraries(fbMain PRIVATE PNG::PNG)
 target_link_libraries(fbMain PRIVATE ZLIB::ZLIB)
+
+
+#add_executable(JSONTest JSONTest.cpp)
+#target_link_libraries(JSONTest PRIVATE cs4212-util)

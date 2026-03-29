@@ -74,7 +74,18 @@ int main(void)
     // The ortho parameters, in order: left, right, bottom, top, zNear, zFar
     float halfWidth = 15.0 / 2.0;
     float halfHeight = halfWidth / aspectRatio;
-    glm::mat4 projectionMatrix = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -10.0f, 10.0f);
+    float left = -halfWidth;
+    float right = halfWidth;
+
+    float bottom = -halfHeight;
+    float top = halfHeight;
+
+    float near = 5.0f;
+    float far = -5.0f;
+
+    glm::mat4 PerspectiveMatrix = glm::perspective(3.14159f/4.0f, 1.0f, 0.1f, 100.0f);
+    //glm::mat4 M_ortho = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
+    //glm::mat4 projectionMatrix = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -10.0f, 10.0f);
 
     GLint major_version;
     glGetIntegerv(GL_MAJOR_VERSION, &major_version);
@@ -96,9 +107,9 @@ int main(void)
     // this is the actual triangle data that will be copied to                                              
     // the GPU memory                                                                                       
     std::vector <float > host_VertexBuffer {
-        -0.5f, -0.7f, 0.0f, 0.0f, 0.0f, 0.0f, // V0 (Black)
-        0.5f, -0.7f, 0.0f, 0.0f, 0.0f, 1.0f, // V1 (Blue)
-        0.0f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f // V2 (White)
+        -3.0f, -3.0f, 0.0f, 1.0f, 0.5f, 0.0f, // V0 (Black)
+        3.0f, -3.0f, 0.0f, 0.0f, 1.0f, 0.5f, // V1 (Blue)
+        0.0f, 3.0f, 0.0f, 0.5f, 0.0f, 1.0f // V2 (White)
     };
     int numBytes = host_VertexBuffer.size() * sizeof(float);
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
@@ -129,8 +140,19 @@ int main(void)
     Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
+     GLuint projMatrixID, viewMatrixID, modelMatrixID;
+    projMatrixID = Shader.createUniform( "projMatrix" );
+    viewMatrixID = Shader.createUniform( "viewMatrix" );
+    modelMatrixID = Shader.createUniform( "modelMatrix" );
+
+    glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
+    glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
+
 
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
+    float rotationAngle = 0.0f;
+    float rotationSpeed = 1.0f;
+
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -143,11 +165,21 @@ int main(void)
         // background color)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 M_view = glm::lookAt( m_pos, m_pos - m_W, m_V );
         /* Render your objects here */
         Shader.activate();
+        
+        rotationAngle += rotationSpeed * timeDiff;
+        glm::mat4 modelTransform = glm::mat4(1.0f);
+        modelTransform = glm::rotate(modelTransform, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelTransform));
+        glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(PerspectiveMatrix));
+        glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr( M_view ));
+
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
+
         Shader.deactivate();
 
         // Swap the front and back buffers
@@ -155,6 +187,27 @@ int main(void)
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        float moveRatePerFrame = 0.05;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        m_pos = m_pos + -m_W * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        m_pos = m_pos - m_U * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        m_pos = m_pos + m_W * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        m_pos = m_pos + m_U * moveRatePerFrame;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            rotationSpeed += 0.1f;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            rotationSpeed -= 0.1f;
+        }
+        
 
         if (glfwGetKey( window, GLFW_KEY_T ) == GLFW_PRESS) {
             std::cout << "fps: " << 1.0/timeDiff << std::endl;

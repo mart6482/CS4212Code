@@ -9,6 +9,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "GLCamera.h"
 
 
 #include "GLSL.h"
@@ -36,6 +37,7 @@ int main(void)
     int winWidth = 1000;
     float aspectRatio = 1.0; // 16.0 / 9.0; // winWidth / (float)winHeight;
     int winHeight = winWidth / aspectRatio;
+    
     
     GLFWwindow* window = glfwCreateWindow(winWidth, winHeight, "GLFW Example", NULL, NULL);
     if (!window) {
@@ -106,7 +108,7 @@ int main(void)
 
     // this is the actual triangle data that will be copied to                                              
     // the GPU memory                                                                                       
-    std::vector <float > host_VertexBuffer {
+    std::vector <float> host_VertexBuffer {
         -3.0f, -3.0f, 0.0f, 1.0f, 0.5f, 0.0f, // V0 (Black)
         3.0f, -3.0f, 0.0f, 0.0f, 1.0f, 0.5f, // V1 (Blue)
         0.0f, 3.0f, 0.0f, 0.5f, 0.0f, 1.0f // V2 (White)
@@ -140,13 +142,14 @@ int main(void)
     Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
-     GLuint projMatrixID, viewMatrixID, modelMatrixID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
 
     glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
+    GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
 
 
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
@@ -165,7 +168,7 @@ int main(void)
         // background color)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 M_view = glm::lookAt( m_pos, m_pos - m_W, m_V );
+        glm::mat4 M_view = glm::lookAt( cam.getPosition(), cam.getPosition() - cam.getW(), cam.getV());
         /* Render your objects here */
         Shader.activate();
         
@@ -190,16 +193,16 @@ int main(void)
 
         float moveRatePerFrame = 0.05;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        m_pos = m_pos + -m_W * moveRatePerFrame;
+        cam.setPosition(cam.getPosition() + -cam.getW() * moveRatePerFrame);
         }
         else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        m_pos = m_pos - m_U * moveRatePerFrame;
+        cam.setPosition(cam.getPosition() - cam.getU() * moveRatePerFrame);
         }
         else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        m_pos = m_pos + m_W * moveRatePerFrame;
+        cam.setPosition(cam.getPosition() + cam.getW() * moveRatePerFrame);
         }
         else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        m_pos = m_pos + m_U * moveRatePerFrame;
+        cam.setPosition(cam.getPosition() + cam.getU() * moveRatePerFrame);
         }
         else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             rotationSpeed += 0.1f;

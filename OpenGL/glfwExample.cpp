@@ -109,9 +109,9 @@ int main(void)
     // this is the actual triangle data that will be copied to                                              
     // the GPU memory                                                                                       
     std::vector <float> host_VertexBuffer {
-        -3.0f, -3.0f, 0.0f, 1.0f, 0.5f, 0.0f, // V0 (Black)
-        3.0f, -3.0f, 0.0f, 0.0f, 1.0f, 0.5f, // V1 (Blue)
-        0.0f, 3.0f, 0.0f, 0.5f, 0.0f, 1.0f // V2 (White)
+        -3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V0 (Black)
+        3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V1 (Blue)
+        0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 1.0f // V2 (White)
     };
     int numBytes = host_VertexBuffer.size() * sizeof(float);
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
@@ -138,14 +138,17 @@ int main(void)
     glBindVertexArray(0);
     // Create a shader using my GLSLObject class                                                            
     sivelab::GLSLObject Shader;
-    Shader.addShader( "vertexShader_passthrough.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    Shader.addShader( "vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER );
     Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
-    GLuint projMatrixID, viewMatrixID, modelMatrixID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
+    normalMatrixID = Shader.createUniform( "normalMatrix" );
+    lightPosID = Shader.createUniform( "lightPosWorld" );
+    diffuseComponentID = Shader.createUniform( "diffuseComponent" );
 
     glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
@@ -178,6 +181,17 @@ int main(void)
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelTransform));
         glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(PerspectiveMatrix));
         glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr( M_view ));
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelTransform));
+        glUniformMatrix4fv(normalMatrixID, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+        // Set the light position in world space
+        glm::vec4 lightPosWorld(0.0f, 0.0f, 5.0f, 1.0f);
+        glUniform4fv(lightPosID, 1, glm::value_ptr(lightPosWorld));
+
+        // Set the diffuse color for the triangle
+        glm::vec3 diffuseComponent(0.0f, 0.5f, 1.0f);
+        glUniform3fv(diffuseComponentID, 1, glm::value_ptr(diffuseComponent));
+
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);

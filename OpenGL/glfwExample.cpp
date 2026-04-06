@@ -142,15 +142,18 @@ int main(void)
     Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
-    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
     normalMatrixID = Shader.createUniform( "normalMatrix" );
     lightPosID = Shader.createUniform( "lightPosWorld" );
     diffuseComponentID = Shader.createUniform( "diffuseComponent" );
+    specularComponentID = Shader.createUniform( "specularComponent" );
+    shininessID = Shader.createUniform( "PhongExponent" );
+    cameraPosID = Shader.createUniform( "cameraPos" );
 
-    glm::vec3 m_pos(0,0,10), m_viewDir(0,0,-1);
+    glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
     GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
 
@@ -189,10 +192,20 @@ int main(void)
         glUniform4fv(lightPosID, 1, glm::value_ptr(lightPosWorld));
 
         // Set the diffuse color for the triangle
-        glm::vec3 diffuseComponent(0.0f, 0.5f, 1.0f);
+        glm::vec3 diffuseComponent(1.0f, 0.0f, 0.5f);
         glUniform3fv(diffuseComponentID, 1, glm::value_ptr(diffuseComponent));
 
+        // Set the specular color for the triangle
+        glm::vec3 specularComponent(1.0f, 1.0f, 1.0f);
+        glUniform3fv(specularComponentID, 1, glm::value_ptr(specularComponent));
 
+        // Set the shininess (Phong exponent) for the triangle
+        float shininess = 256.0f;
+        glUniform1f(shininessID, shininess);
+        
+        // Set the camera position in world space
+        glUniform3fv(cameraPosID, 1, glm::value_ptr(cam.getPosition()));
+        
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
@@ -219,10 +232,10 @@ int main(void)
         cam.setPosition(cam.getPosition() + cam.getU() * moveRatePerFrame);
         }
         else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            rotationSpeed += 0.1f;
+            rotationSpeed += 0.01f;
         }
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            rotationSpeed -= 0.1f;
+            rotationSpeed -= 0.01f;
         }
         
 

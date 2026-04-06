@@ -29,4 +29,11 @@ How to compile and run the OpenGL files:
 
 3. run .\OpenGL\Debug\glfwExample.exe
 
-4. If there is an error accessing shader files, copy vertexShader_passthrough.glsl and fragmentShader_passthrough.glsl into .\BuildVCPkg\
+4. If there is an error accessing shader files, copy the vertex and fragmentshaders from the OpenGL folder into .\BuildVCPkg\
+
+Controls:
+WASD - move camera
+Arrow Up - increase rotation speed
+Arrow Down - decrease rotation speed
+N - swap to normal shader
+B - swap to Blinn-Phong shader

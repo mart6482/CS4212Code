@@ -142,6 +142,13 @@ int main(void)
     Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
+    sivelab::GLSLObject normalShader;
+    normalShader.addShader( "vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    normalShader.addShader( "fragmentShader_Normal.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
+    normalShader.createProgram();
+
+    sivelab::GLSLObject* currentShader = &Shader;
+
     GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
@@ -176,7 +183,7 @@ int main(void)
 
         glm::mat4 M_view = glm::lookAt( cam.getPosition(), cam.getPosition() - cam.getW(), cam.getV());
         /* Render your objects here */
-        Shader.activate();
+        currentShader->activate();
         
         rotationAngle += rotationSpeed * timeDiff;
         glm::mat4 modelTransform = glm::mat4(1.0f);
@@ -210,7 +217,7 @@ int main(void)
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
-        Shader.deactivate();
+        currentShader->deactivate();
 
         // Swap the front and back buffers
         glfwSwapBuffers(window);
@@ -236,6 +243,11 @@ int main(void)
         }
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             rotationSpeed -= 0.01f;
+        }else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+            //swaps between normal and b-p shaders
+            currentShader = &normalShader;
+        }else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+            currentShader = &Shader;
         }
         
 

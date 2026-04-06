@@ -107,11 +107,11 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     // this is the actual triangle data that will be copied to                                              
-    // the GPU memory                                                                                       
+    // the GPU memory                                                           
     std::vector <float> host_VertexBuffer {
-        -3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V0 (Black)
-        3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V1 (Blue)
-        0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 1.0f // V2 (White)
+        -3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V0 + normal
+        3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V1 + normal
+        0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 1.0f // V2 + normal
     };
     int numBytes = host_VertexBuffer.size() * sizeof(float);
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
@@ -150,7 +150,7 @@ int main(void)
     lightPosID = Shader.createUniform( "lightPosWorld" );
     diffuseComponentID = Shader.createUniform( "diffuseComponent" );
 
-    glm::vec3 m_pos(0,0,0), m_viewDir(0,0,-1);
+    glm::vec3 m_pos(0,0,10), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
     GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
 

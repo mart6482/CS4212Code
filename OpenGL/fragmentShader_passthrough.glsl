@@ -20,7 +20,7 @@ void main(void){
     vec3 H = normalize(L + V);
 
     //diffuse component
-    float val = max(0.0, dot(normal, lightDir));
+    float val = max(0.0, dot(N, L));
     vec3 diffuseShading = vec3( diffuseComponent.r * val, diffuseComponent.g * val, diffuseComponent.b * val );
 
     //Blinn-Phong component

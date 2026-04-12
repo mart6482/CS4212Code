@@ -304,7 +304,7 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
 
-        float moveRatePerFrame = 0.05;
+        float moveRatePerFrame = 0.005;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         cam.setPosition(cam.getPosition() + -cam.getW() * moveRatePerFrame);
         }

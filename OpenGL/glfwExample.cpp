@@ -331,6 +331,11 @@ int main(void)
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
     int shadingMode = 0;
+    glm::vec4 lights[2]{
+        glm::vec4(3.0f, 5.0f, 2.0f, 1.0f),
+        glm::vec4(-3.0f, 5.0f, 2.0f, 1.0f)
+    };
+
     
     
     /* Loop until the user closes the window */
@@ -359,8 +364,10 @@ int main(void)
         glUniformMatrix4fv(normalMatrixID, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
         // Set the light position in world space
-        glm::vec4 lightPosWorld(0.0f, 0.0f, 5.0f, 1.0f);
-        glUniform4fv(lightPosID, 1, glm::value_ptr(lightPosWorld));
+        /*glm::vec4 lightPosWorld(3.0f, 5.0f, 2.0f, 1.0f);
+        glUniform4fv(lightPosID, 1, glm::value_ptr(lightPosWorld));*/
+
+        glUniform4fv(lightPosID, 2, glm::value_ptr(lights[0]));
 
         // Set the diffuse color for the triangle
         glm::vec3 diffuseComponent(1.0f, 0.0f, 0.5f);

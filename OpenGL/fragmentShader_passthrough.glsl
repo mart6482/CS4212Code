@@ -6,32 +6,44 @@ uniform vec3 diffuseComponent;
 uniform vec3 specularComponent;
 uniform float PhongExponent;
 uniform vec3 cameraPos;
-uniform int shadingMode;
 
-in vec4 normal;
-in vec4 lightDir;
-in vec4 vertexWorldPos;
+uniform vec4 lightPosWorld[2];
+
+uniform int shadingMode;
+uniform int useFlatColor;
+uniform vec3 flatColor;
+
+in vec3 normal;
+in vec3 vertexWorldPos;
 
 void main(void){
-
-    //calculate important vectors
-    vec3 N = normalize(normal.xyz);
-    vec3 L = normalize(lightDir.xyz);
-    vec3 V = normalize(cameraPos - vertexWorldPos.xyz);
-    vec3 H = normalize(L + V);
-
-    //diffuse component
-    float val = max(0.0, dot(N, L));
-    vec3 diffuseShading = vec3( diffuseComponent.r * val, diffuseComponent.g * val, diffuseComponent.b * val );
-
-    //Blinn-Phong component
-    float spec = pow(max(dot(N, H), 0.0), PhongExponent);
-    vec3 specularShading = specularComponent * spec;
-    
-    if(shadingMode == 0){
-        fragmentColor = vec4(diffuseShading, 1.0);
-    } else {
-        fragmentColor = vec4(diffuseShading + specularShading, 1.0);
+    if (useFlatColor == 1){
+        fragmentColor = vec4(flatColor, 1.0);
+        return;
     }
-    
+
+    vec3 N = normalize(normal);
+    vec3 V = normalize(cameraPos - vertexWorldPos);
+
+    vec3 result = vec3(0.0);
+
+    for (int i = 0; i < 2; i++){
+        vec3 L = normalize(lightPosWorld[i].xyz - vertexWorldPos);
+
+        float diff = max(dot(N, L), 0.0);
+        vec3 diffuse = diffuseComponent * diff;
+
+        if (shadingMode == 0){
+            result += diffuse;
+        }
+        else{
+            vec3 H = normalize(L + V);
+            float spec = pow(max(dot(N, H), 0.0), PhongExponent);
+            vec3 specular = specularComponent * spec;
+
+            result += diffuse + specular;
+        }
+    }
+
+    fragmentColor = vec4(result, 1.0);
 }

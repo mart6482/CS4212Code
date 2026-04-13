@@ -36,10 +36,11 @@ class GLCamera {
 
             viewDir = glm::normalize(front);
 
-            // FPS camera basis (correct order)
-            W = glm::normalize(-viewDir);
-            U = glm::normalize(glm::cross(W, glm::vec3(0,1,0)));
-            V = glm::normalize(glm::cross(U, W));
+            glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+            W = -viewDir;
+            U = glm::normalize(glm::cross(viewDir, up));   // 🔥 FIX HERE
+            V = glm::cross(U, viewDir);
         }
 
     private:

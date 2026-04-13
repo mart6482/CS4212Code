@@ -33,8 +33,7 @@ How to compile and run the OpenGL files:
 
 Controls:
 WASD - move camera
-Arrow Up - increase rotation speed
-Arrow Down - decrease rotation speed
+Mouse - rotate camera
 N - swap to normal shader
 M - swap to Blinn-Phong/Lambertian shader mode
 B - swap to Blinn-Phong shading when in Blinn-Pong/Lambertian shader mode

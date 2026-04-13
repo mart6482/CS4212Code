@@ -6,6 +6,7 @@ uniform vec3 diffuseComponent;
 uniform vec3 specularComponent;
 uniform float PhongExponent;
 uniform vec3 cameraPos;
+uniform int shadingMode;
 
 in vec4 normal;
 in vec4 lightDir;
@@ -27,6 +28,10 @@ void main(void){
     float spec = pow(max(dot(N, H), 0.0), PhongExponent);
     vec3 specularShading = specularComponent * spec;
     
-
-    fragmentColor = vec4(diffuseShading + specularShading, 1.0);
+    if(shadingMode == 0){
+        fragmentColor = vec4(diffuseShading, 1.0);
+    } else {
+        fragmentColor = vec4(diffuseShading + specularShading, 1.0);
+    }
+    
 }

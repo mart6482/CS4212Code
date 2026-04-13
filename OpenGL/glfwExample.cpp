@@ -189,7 +189,7 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 
-    std::vector<float> host_VertexBuffer = buildIcosahedron(5);
+    std::vector<float> host_VertexBuffer = buildIcosahedron(4);
     int vertexCount = host_VertexBuffer.size() / 6;
     int numBytes = host_VertexBuffer.size() * sizeof(float);
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
@@ -226,8 +226,8 @@ int main(void)
     normalShader.createProgram();
 
     sivelab::GLSLObject* currentShader = &Shader;
-
-    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID;
+    //build uniform variables
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
@@ -237,6 +237,8 @@ int main(void)
     specularComponentID = Shader.createUniform( "specularComponent" );
     shininessID = Shader.createUniform( "PhongExponent" );
     cameraPosID = Shader.createUniform( "cameraPos" );
+    shadingModeID = Shader.createUniform( "shadingMode" );
+    
 
     glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
@@ -246,7 +248,7 @@ int main(void)
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
-
+    int shadingMode = 0;
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -287,6 +289,7 @@ int main(void)
         // Set the shininess (Phong exponent) for the triangle
         float shininess = 256.0f;
         glUniform1f(shininessID, shininess);
+        glUniform1i(shadingModeID, shadingMode); 
         
         // Set the camera position in world space
         glUniform3fv(cameraPosID, 1, glm::value_ptr(cam.getPosition()));
@@ -323,13 +326,15 @@ int main(void)
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             rotationSpeed -= 0.01f;
         }else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
-            //swaps between normal and b-p shaders
             currentShader = &normalShader;
-        }else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        }else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
             currentShader = &Shader;
+        }else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+            shadingMode = 0; 
+        }else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+            shadingMode = 1;
         }
         
-
         if (glfwGetKey( window, GLFW_KEY_T ) == GLFW_PRESS) {
             std::cout << "fps: " << 1.0/timeDiff << std::endl;
         }

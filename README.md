@@ -36,4 +36,6 @@ WASD - move camera
 Arrow Up - increase rotation speed
 Arrow Down - decrease rotation speed
 N - swap to normal shader
-B - swap to Blinn-Phong shader
+M - swap to Blinn-Phong/Lambertian shader mode
+B - swap to Blinn-Phong shading when in Blinn-Pong/Lambertian shader mode
+L - swap to Lambertian shading when in Blinn-Pong/Lambertian shader mode

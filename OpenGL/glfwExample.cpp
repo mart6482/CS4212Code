@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -91,7 +92,38 @@ std::vector<float> buildIcosahedron(int depth){
 
     return vbo;
 }
+GLCamera* camPTR = nullptr;
+double lastX = 500, lastY = 500;
+bool firstMouse = true;
+float sensitivity = 0.1f;
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (!camPTR) return;
 
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    camPTR->yaw   += xoffset;
+    camPTR->pitch += yoffset;
+
+    if (camPTR->pitch > 89.0f) camPTR->pitch = 89.0f;
+    if (camPTR->pitch < -89.0f) camPTR->pitch = -89.0f;
+
+    camPTR->updateFromAngles();
+}
 int main(void)
 {
     /* Initialize the library */
@@ -178,17 +210,6 @@ int main(void)
     glGenBuffers(1, m_triangleVBO); 
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
-    // this is the actual triangle data that will be copied to                                              
-    // the GPU memory                                                           
-    /*std::vector <float> host_VertexBuffer {
-        -3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V0 + normal
-        3.0f, -3.0f, 0.0f, 0.0f, 0.0f, 1.0f, // V1 + normal
-        0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 1.0f // V2 + normal
-    };
-    int numBytes = host_VertexBuffer.size() * sizeof(float);
-    glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);*/
-
     std::vector<float> host_VertexBuffer = buildIcosahedron(4);
     int vertexCount = host_VertexBuffer.size() / 6;
     int numBytes = host_VertexBuffer.size() * sizeof(float);
@@ -197,6 +218,25 @@ int main(void)
 
     // once copied, we no longer need the data on the host                                                  
     host_VertexBuffer.clear();
+
+
+    std::vector<glm::vec3> spherePositions;
+
+    // central sphere position
+    glm::vec3 center(0.0f, 1.0f, -4.0f);
+
+    // ring parameters (same as raytracer)
+    float radiusFromCenter = 3.0f;
+    int count = 8;
+
+    for (int i = 0; i < count; i++) {
+        float angle = i * (2.0f * 3.14159265358979323846f / count);
+
+        float x = center.x + radiusFromCenter * cos(angle);
+        float z = center.z + radiusFromCenter * sin(angle);
+
+        spherePositions.push_back(glm::vec3(x, 1.0f, z));
+    }
 
     //VAO for the VBO
     // create a vertex array object that will map the attributes in                                         
@@ -243,12 +283,16 @@ int main(void)
     glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
     GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
+    camPTR = &cam;
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
     int shadingMode = 0;
+    
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -261,14 +305,15 @@ int main(void)
         // background color)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 M_view = glm::lookAt( cam.getPosition(), cam.getPosition() - cam.getW(), cam.getV());
+        glm::mat4 M_view = glm::lookAt(cam.getPosition(), cam.getPosition() + cam.getViewDirection(), glm::vec3(0,1,0));
         /* Render your objects here */
         currentShader->activate();
         
         rotationAngle += rotationSpeed * timeDiff;
         glm::mat4 modelTransform = glm::mat4(1.0f);
         modelTransform = glm::rotate(modelTransform, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelTransform));
+
+        //glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelTransform));
         glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(PerspectiveMatrix));
         glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr( M_view ));
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelTransform));
@@ -296,7 +341,14 @@ int main(void)
         
         glBindVertexArray(m_VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        for(int i = 0; i<spherePositions.size(); i++){
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, spherePositions[i]);
+            model = glm::scale(model, glm::vec3(0.5f));
+            glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        }
         glBindVertexArray(0);
 
         currentShader->deactivate();
@@ -325,7 +377,8 @@ int main(void)
         }
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             rotationSpeed -= 0.01f;
-        }else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+        }
+        else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
             currentShader = &normalShader;
         }else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
             currentShader = &Shader;

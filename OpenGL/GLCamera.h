@@ -6,6 +6,8 @@
 class GLCamera {
     public:
         GLCamera();
+        float pitch = 0.0f;
+        float yaw = -90.0f;
         GLCamera(const glm::vec3& position, const glm::vec3& viewDirection, const glm::vec3& U, const glm::vec3& V, const glm::vec3& W){
             pos = position;
             viewDir = viewDirection;
@@ -25,6 +27,20 @@ class GLCamera {
         glm::vec3 getU() const { return U; }
         glm::vec3 getV() const { return V; }
         glm::vec3 getW() const { return W; }
+
+        void updateFromAngles(){
+            glm::vec3 front;
+            front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+            front.y = sin(glm::radians(pitch));
+            front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+            viewDir = glm::normalize(front);
+
+            // FPS camera basis (correct order)
+            W = glm::normalize(-viewDir);
+            U = glm::normalize(glm::cross(W, glm::vec3(0,1,0)));
+            V = glm::normalize(glm::cross(U, W));
+        }
 
     private:
         glm::vec3 pos;

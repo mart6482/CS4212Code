@@ -238,6 +238,43 @@ int main(void)
         spherePositions.push_back(glm::vec3(x, 1.0f, z));
     }
 
+    std::vector<glm::vec3> rainbow = {
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 0.5f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.5f},
+        {0.0f, 1.0f, 1.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.5f, 0.0f, 1.0f}
+    };
+
+
+    //floor
+    std::vector<float> floor;
+    float floorSize = 100.0f;
+    float floorY = -8.0f;
+    glm::vec3 v0(-floorSize, floorY, -floorSize);
+    glm::vec3 v1(floorSize, floorY, -floorSize);
+    glm::vec3 v2(floorSize, floorY, floorSize);
+    glm::vec3 v3(-floorSize, floorY, floorSize);
+    addTriangle(v0, v1, v2, floor);
+    addTriangle(v0, v2, v3, floor);
+
+    GLuint floorVBO, floorVAO;
+    glGenBuffers(1, &floorVBO);
+    glGenVertexArrays(1, &floorVAO);
+    glBindVertexArray(floorVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
+    glBufferData(GL_ARRAY_BUFFER, floor.size() * sizeof(float), floor.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
+
     //VAO for the VBO
     // create a vertex array object that will map the attributes in                                         
     // our vertex buffer to different location attributes for our                                           
@@ -267,7 +304,7 @@ int main(void)
 
     sivelab::GLSLObject* currentShader = &Shader;
     //build uniform variables
-    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID, useFlatColorID, flatColorID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
@@ -278,6 +315,8 @@ int main(void)
     shininessID = Shader.createUniform( "PhongExponent" );
     cameraPosID = Shader.createUniform( "cameraPos" );
     shadingModeID = Shader.createUniform( "shadingMode" );
+    useFlatColorID = Shader.createUniform( "useFlatColor" );
+    flatColorID = Shader.createUniform( "flatColor" );
     
 
     glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
@@ -309,9 +348,9 @@ int main(void)
         /* Render your objects here */
         currentShader->activate();
         
-        rotationAngle += rotationSpeed * timeDiff;
+        //rotationAngle += rotationSpeed * timeDiff;
         glm::mat4 modelTransform = glm::mat4(1.0f);
-        modelTransform = glm::rotate(modelTransform, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        //modelTransform = glm::rotate(modelTransform, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 
         //glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(modelTransform));
         glUniformMatrix4fv(projMatrixID, 1, GL_FALSE, glm::value_ptr(PerspectiveMatrix));
@@ -335,14 +374,34 @@ int main(void)
         float shininess = 256.0f;
         glUniform1f(shininessID, shininess);
         glUniform1i(shadingModeID, shadingMode); 
+
+        glUniform1i(useFlatColorID, 0); // not using flat color
         
         // Set the camera position in world space
         glUniform3fv(cameraPosID, 1, glm::value_ptr(cam.getPosition()));
         
-        glBindVertexArray(m_VAO);
+        
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+        //floor rendering
+        glUniform1i(useFlatColorID, 1); // use flat color for floor
+        glUniform3fv(flatColorID, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f))); // set flat color to gray
+        glBindVertexArray(floorVAO);
+        glm::mat4 floorModel = glm::mat4(1.0f);
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(floorModel));
+        glDrawArrays(GL_TRIANGLES, 0, floor.size() / 6);
+        glBindVertexArray(0);
+        glUniform1i(useFlatColorID, 0); // reset to not using flat color for spheres
+
+        //sphere rendering
+        glBindVertexArray(m_VAO);
         for(int i = 0; i<spherePositions.size(); i++){
+            //set color
+            glm::vec3 color = rainbow[i % rainbow.size()];
+            glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
+            
+            //transform the sphere and draw it
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, spherePositions[i]);
             model = glm::scale(model, glm::vec3(0.5f));
@@ -372,12 +431,12 @@ int main(void)
         else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cam.setPosition(cam.getPosition() + cam.getU() * moveRatePerFrame);
         }
-        else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        /*else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             rotationSpeed += 0.01f;
         }
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             rotationSpeed -= 0.01f;
-        }
+        }*/
         else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
             currentShader = &normalShader;
         }else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {

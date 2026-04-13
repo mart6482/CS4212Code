@@ -35,6 +35,5 @@ Controls:
 WASD - move camera
 Mouse - rotate camera
 N - swap to normal shader
-M - swap to Blinn-Phong/Lambertian shader mode
-B - swap to Blinn-Phong shading when in Blinn-Pong/Lambertian shader mode
-L - swap to Lambertian shading when in Blinn-Pong/Lambertian shader mode
+B - swap to Blinn-Phong shader
+L - swap to Lambertian shader

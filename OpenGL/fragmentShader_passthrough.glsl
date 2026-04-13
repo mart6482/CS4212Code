@@ -22,6 +22,12 @@ void main(void){
         return;
     }
 
+    if(shadingMode == 2){
+        vec3 intensity = normalize(normal) * 0.5 + 0.5;
+        fragmentColor = vec4(intensity, 1.0);
+        return;
+    }
+
     vec3 N = normalize(normal);
     vec3 V = normalize(cameraPos - vertexWorldPos);
 
@@ -36,7 +42,7 @@ void main(void){
         if (shadingMode == 0){
             result += diffuse;
         }
-        else{
+        else if(shadingMode == 1){
             vec3 H = normalize(L + V);
             float spec = pow(max(dot(N, H), 0.0), PhongExponent);
             vec3 specular = specularComponent * spec;

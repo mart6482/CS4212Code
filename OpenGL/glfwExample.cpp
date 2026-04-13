@@ -226,9 +226,8 @@ int main(void)
     glm::vec3 center(0.0f, 1.0f, -4.0f);
 
     // ring parameters (same as raytracer)
-    float radiusFromCenter = 3.0f;
+    float radiusFromCenter = 2.0f;
     int count = 8;
-
     for (int i = 0; i < count; i++) {
         float angle = i * (2.0f * 3.14159265358979323846f / count);
 
@@ -330,7 +329,7 @@ int main(void)
     double timeDiff = 0.0, startFrameTime = 0.0, endFrameTime = 0.0;
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
-    int shadingMode = 0;
+    int shadingMode = 1;
     glm::vec4 lights[2]{
         glm::vec4(3.0f, 5.0f, 2.0f, 1.0f),
         glm::vec4(-3.0f, 5.0f, 2.0f, 1.0f)
@@ -403,6 +402,15 @@ int main(void)
 
         //sphere rendering
         glBindVertexArray(m_VAO);
+        //render middle sphere
+        glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, center);
+        model = glm::scale(model, glm::vec3(0.8f));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+        //render ring of spheres
         for(int i = 0; i<spherePositions.size(); i++){
             //set color
             glm::vec3 color = rainbow[i % rainbow.size()];
@@ -445,9 +453,7 @@ int main(void)
             rotationSpeed -= 0.01f;
         }*/
         else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
-            currentShader = &normalShader;
-        }else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
-            currentShader = &Shader;
+            shadingMode = 2;
         }else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
             shadingMode = 0; 
         }else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {

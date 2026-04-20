@@ -325,20 +325,15 @@ int main(void)
     GLuint triangleVBO, triangleVAO;
     glGenBuffers(1, &triangleVBO);
     glGenVertexArrays(1, &triangleVAO);
-
     glBindVertexArray(triangleVAO);
     glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
     glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(float), triangle.data(), GL_STATIC_DRAW);
-
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
     glBindVertexArray(0);
 
 
@@ -510,7 +505,6 @@ int main(void)
         glBindVertexArray(0);
 
         glUniform1i(useTextureID, 0); 
-
 
         //floor rendering
         glUniform1i(useFlatColorID, 1); // use flat color for floor

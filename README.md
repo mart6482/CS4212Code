@@ -30,7 +30,10 @@ How to compile and run the OpenGL files:
 
 4. run .\OpenGL\Debug\glfwTexture.exe for the Texture Lab.
 
-5. If there is an error accessing shader files, copy the vertex shaders, fragment shaders, and/or the images from the OpenGL folder into .\BuildVCPkg\
+5. run .\OpenGL\Debug\glfwAtlas.exe for the Texture Atlas.
+
+5. If there is an error accessing shader files, copy the vertex shaders, fragment shaders, and/or the images 
+   from the OpenGL folder into .\BuildVCPkg\
 
 
 

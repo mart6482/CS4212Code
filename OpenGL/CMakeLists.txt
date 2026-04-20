@@ -12,6 +12,12 @@ add_executable (glfwTexture
   GLCamera.h
 )
 
+add_executable (glfwAtlas
+  glfwAtlas.cpp 
+  GLSL.cpp GLSL.h
+  GLCamera.h
+)
+
 target_link_libraries (glfwExample PRIVATE GLEW::GLEW)
 target_link_libraries (glfwExample PRIVATE glfw)
 
@@ -45,3 +51,20 @@ endif()
 
 target_link_libraries (glfwTexture PRIVATE PNG::PNG)
 target_link_libraries (glfwTexture PRIVATE ZLIB::ZLIB)
+
+target_link_libraries (glfwAtlas PRIVATE GLEW::GLEW)
+target_link_libraries (glfwAtlas PRIVATE glfw)
+
+if(APPLE)
+    target_link_libraries(glfwAtlas PRIVATE
+        "-framework OpenGL"
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework CoreVideo"
+    )
+else()
+    target_link_libraries(glfwAtlas PRIVATE OpenGL::GL)
+endif()
+
+target_link_libraries (glfwAtlas PRIVATE PNG::PNG)
+target_link_libraries (glfwAtlas PRIVATE ZLIB::ZLIB)

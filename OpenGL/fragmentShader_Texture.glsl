@@ -37,9 +37,15 @@ void main(void){
 
     for (int i = 0; i < 2; i++){
         vec3 L = normalize(lightPosWorld[i].xyz - vertexWorldPos);
-
+        
+        vec3 diffuse;
         float diff = max(dot(N, L), 0.0);
-        vec3 diffuse = diffuseComponent * diff;
+        if(useTexture == 1){
+            diffuse = diffuseComponent * texColor.rgb * diff;
+        }else{
+            diffuse = diffuseComponent * diff;
+        }
+        
 
         if (shadingMode == 0){
             result += diffuse;
@@ -53,10 +59,6 @@ void main(void){
         }
     }
 
-    if(useTexture == 1){
-        fragmentColor = vec4(result, 1.0) * texColor;
-        return;
-    }
     fragmentColor = vec4(result, 1.0);
     
 }

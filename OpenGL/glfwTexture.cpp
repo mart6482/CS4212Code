@@ -11,6 +11,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "GLCamera.h"
+#include "png++/png.hpp"
 
 
 #include "GLSL.h"
@@ -21,9 +22,10 @@ int CheckGLErrors(const char *s)
     return errCount;
 }
 
+
 void addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, std::vector<float> &vbo)
 {
-    auto push = [&](const glm::vec3 &p)
+    auto push = [&](const glm::vec3 &p, const glm::vec2 &uv)
     {
         glm::vec3 n = glm::normalize(p); // sphere normal
 
@@ -36,11 +38,41 @@ void addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, 
         vbo.push_back(n.x);
         vbo.push_back(n.y);
         vbo.push_back(n.z);
+
+        //uv
+        vbo.push_back(uv.x);
+        vbo.push_back(uv.y);
     };
 
-    push(v0);
-    push(v1);
-    push(v2);
+    push(v0, glm::vec2(0.0f, 0.0f));
+    push(v1, glm::vec2(1.0f, 0.0f));
+    push(v2, glm::vec2(0.5f, 1.0f));
+}
+
+void addTexturedTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec2 &uv0, const glm::vec2 &uv1, const glm::vec2 &uv2, std::vector<float> &vbo)
+{
+    auto push = [&](const glm::vec3 &p, const glm::vec2 &uv)
+    {
+        glm::vec3 n = glm::normalize(p); // keeping your current normal logic
+        
+        // position
+        vbo.push_back(p.x);
+        vbo.push_back(p.y);
+        vbo.push_back(p.z);
+
+        // normal
+        vbo.push_back(n.x);
+        vbo.push_back(n.y);
+        vbo.push_back(n.z);
+
+        // UV  ✔ THIS WAS MISSING BEFORE
+        vbo.push_back(uv.x);
+        vbo.push_back(uv.y);
+    };
+
+    push(v0, uv0);
+    push(v1, uv1);
+    push(v2, uv2);
 }
 
 void subdivide(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, int depth, std::vector<float> &vbo)
@@ -211,13 +243,46 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     std::vector<float> host_VertexBuffer = buildIcosahedron(4);
-    int vertexCount = host_VertexBuffer.size() / 6;
+    int vertexCount = host_VertexBuffer.size() / 8;
     int numBytes = host_VertexBuffer.size() * sizeof(float);
     glBufferData(GL_ARRAY_BUFFER , numBytes , host_VertexBuffer.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
 
     // once copied, we no longer need the data on the host                                                  
     host_VertexBuffer.clear();
+
+
+    std::string textFilename = "textureMap.png";
+    std::cout << "Loading texture from file: " << textFilename << std::endl;
+    png::image<png::rgb_pixel> texPNGImage;
+    texPNGImage.read(textFilename);
+
+    int pngWidth = texPNGImage.get_width();
+    int pngHeight = texPNGImage.get_height();
+
+    std::vector<float> texData(pngWidth * pngHeight * 3);
+
+    size_t idx = 0;
+    for (size_t row = 0; row < pngHeight; ++row) {
+        for (size_t col = 0; col < pngWidth; ++col) {
+            png::rgb_pixel pixel = texPNGImage[pngHeight - row - 1][col]; // <-- notice the flip of height!!!
+            texData[idx++] = pixel.red / 255.0f;
+            texData[idx++] = pixel.green / 255.0f;
+            texData[idx++] = pixel.blue / 255.0f;
+        }
+    }
+
+    GLuint texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 
+                pngWidth, pngHeight, 
+                0, GL_RGB, GL_FLOAT, texData.data());
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 
     std::vector<glm::vec3> spherePositions;
@@ -249,6 +314,34 @@ int main(void)
     };
 
 
+    //Texture Square
+    std::vector<float> triangle;
+    glm::vec3 topLeft = glm::vec3(-1, 1, 1);
+    glm::vec3 topRight = glm::vec3(1, 1, 1);
+    glm::vec3 bottomLeft = glm::vec3(-1, -1, 1);
+    glm::vec3 bottomRight = glm::vec3(1, -1, 1);
+    addTexturedTriangle(topLeft, bottomLeft, bottomRight, glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), triangle);
+    addTexturedTriangle(topLeft, bottomRight, topRight, glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f), triangle);
+    GLuint triangleVBO, triangleVAO;
+    glGenBuffers(1, &triangleVBO);
+    glGenVertexArrays(1, &triangleVAO);
+
+    glBindVertexArray(triangleVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+    glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(float), triangle.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+    glBindVertexArray(0);
+
+
     //floor
     std::vector<float> floor;
     float floorSize = 100.0f;
@@ -269,9 +362,11 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, floor.size() * sizeof(float), floor.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
     //VAO for the VBO
@@ -285,25 +380,31 @@ int main(void)
     // (Position of the vertex)                                                                             
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, m_triangleVBO[0]);
-    glVertexAttribPointer (0, 3, GL_FLOAT , GL_FALSE , 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer (0, 3, GL_FLOAT , GL_FALSE , 8 * sizeof(float), (void*)0);
     
     glEnableVertexAttribArray (1);
-    glVertexAttribPointer (1, 3, GL_FLOAT , GL_FALSE , 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer (1, 3, GL_FLOAT , GL_FALSE , 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glEnableVertexAttribArray (2);
+    glVertexAttribPointer (2, 2, GL_FLOAT , GL_FALSE , 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
+
+
+
     // Create a shader using my GLSLObject class                                                            
     sivelab::GLSLObject Shader;
-    Shader.addShader( "vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER );
-    Shader.addShader( "fragmentShader_passthrough.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
+    Shader.addShader( "vertexShader_Texture.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    Shader.addShader( "fragmentShader_Texture.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     Shader.createProgram();
 
     sivelab::GLSLObject normalShader;
-    normalShader.addShader( "vertexShader_PrepForPerFragment.glsl", sivelab::GLSLObject::VERTEX_SHADER );
+    normalShader.addShader( "vertexShader_Texture.glsl", sivelab::GLSLObject::VERTEX_SHADER );
     normalShader.addShader( "fragmentShader_Normal.glsl", sivelab::GLSLObject::FRAGMENT_SHADER );
     normalShader.createProgram();
 
     sivelab::GLSLObject* currentShader = &Shader;
     //build uniform variables
-    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID, useFlatColorID, flatColorID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID, useFlatColorID, flatColorID, texUnitID, useTextureID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
@@ -316,6 +417,9 @@ int main(void)
     shadingModeID = Shader.createUniform( "shadingMode" );
     useFlatColorID = Shader.createUniform( "useFlatColor" );
     flatColorID = Shader.createUniform( "flatColor" );
+    texUnitID = Shader.createUniform("textureSampler");
+    useTextureID = Shader.createUniform("useTexture");
+
     
 
     glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
@@ -331,8 +435,8 @@ int main(void)
     float rotationSpeed = 1.0f;
     int shadingMode = 1;
     glm::vec4 lights[2]{
-        glm::vec4(3.0f, 5.0f, 2.0f, 1.0f),
-        glm::vec4(-3.0f, 5.0f, 2.0f, 1.0f)
+        glm::vec4(3.0f, 3.0f, 4.0f, 1.0f),
+        glm::vec4(-3.0f, 3.0f, 4.0f, 1.0f)
     };
 
     
@@ -351,6 +455,7 @@ int main(void)
         glm::mat4 M_view = glm::lookAt(cam.getPosition(), cam.getPosition() + cam.getViewDirection(), glm::vec3(0,1,0));
         /* Render your objects here */
         currentShader->activate();
+    
         
         //rotationAngle += rotationSpeed * timeDiff;
         glm::mat4 modelTransform = glm::mat4(1.0f);
@@ -389,6 +494,23 @@ int main(void)
         
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texID);
+        glUniform1i(texUnitID, 0);
+        glUniform1i(useTextureID, 1);
+
+        //triangle rendering
+        glBindVertexArray(triangleVAO);
+        glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+        glm::mat4 triangleModel = glm::mat4(1.0f);
+        triangleModel = glm::translate(triangleModel, glm::vec3(0.0f, 2.0f, -2.0f));
+        triangleModel = glm::scale(triangleModel, glm::vec3(4.0f, 4.0f, 4.0f));
+        glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(triangleModel));
+        glDrawArrays(GL_TRIANGLES, 0, triangle.size() / 8);
+        glBindVertexArray(0);
+
+        glUniform1i(useTextureID, 0); 
+
 
         //floor rendering
         glUniform1i(useFlatColorID, 1); // use flat color for floor
@@ -396,7 +518,7 @@ int main(void)
         glBindVertexArray(floorVAO);
         glm::mat4 floorModel = glm::mat4(1.0f);
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(floorModel));
-        glDrawArrays(GL_TRIANGLES, 0, floor.size() / 6);
+        glDrawArrays(GL_TRIANGLES, 0, floor.size() / 8);
         glBindVertexArray(0);
         glUniform1i(useFlatColorID, 0); // reset to not using flat color for spheres
 

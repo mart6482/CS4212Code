@@ -26,9 +26,13 @@ How to compile and run the OpenGL files:
 
 2. run cmake --build .
 
-3. run .\OpenGL\Debug\glfwExample.exe
+3. run .\OpenGL\Debug\glfwExample.exe for the Silver Level Programming Skill render. 
 
-4. If there is an error accessing shader files, copy the vertex and fragmentshaders from the OpenGL folder into .\BuildVCPkg\
+4. run .\OpenGL\Debug\glfwTexture.exe for the Texture Lab.
+
+5. If there is an error accessing shader files, copy the vertex shaders, fragment shaders, and/or the images from the OpenGL folder into .\BuildVCPkg\
+
+
 
 Controls:
 WASD - move camera

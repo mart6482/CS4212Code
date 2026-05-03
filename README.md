@@ -32,7 +32,9 @@ How to compile and run the OpenGL files:
 
 5. run .\OpenGL\Debug\glfwAtlas.exe for the Texture Atlas.
 
-5. If there is an error accessing shader files, copy the vertex shaders, fragment shaders, and/or the images 
+6. run .\OpenGL\Debug\glfwExampleCT.exe for the Cook-Torrance Shader (Gold Level Programming Assignment)
+
+7. If there is an error accessing shader files, copy the vertex shaders, fragment shaders, and/or the images 
    from the OpenGL folder into .\BuildVCPkg\
 
 

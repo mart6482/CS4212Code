@@ -21,6 +21,7 @@ in vec3 normal;
 in vec3 vertexWorldPos;
 
 const float PI = 3.14159265;
+
 //GGX Distribution (D)
 float DistGGX(vec3 N, vec3 H, float roughness)
 {
@@ -50,7 +51,7 @@ float GeometryFinal(vec3 N, vec3 V, vec3 L, float roughness)
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
 
-    float ggxV = GeometryGGX(NdotV, roughness);  // <-- FIXED function name
+    float ggxV = GeometryGGX(NdotV, roughness); 
     float ggxL = GeometryGGX(NdotL, roughness);
 
     return ggxV * ggxL;

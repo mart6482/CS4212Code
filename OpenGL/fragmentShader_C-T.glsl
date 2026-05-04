@@ -58,7 +58,7 @@ float GeometryFinal(vec3 N, vec3 V, vec3 L, float roughness)
 }
 
 //Fresnel Value (F)
-vec3 Fresnel(float cosTheta, vec3 F0)
+vec3 FresnelApprox(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
@@ -96,7 +96,7 @@ void main(void)
         // Cook-Torrance BRDF
         float D = DistGGX(N, H, roughness);
         float G = GeometryFinal(N, V, L, roughness);
-        vec3  F = Fresnel(max(dot(H, V), 0.0), F0);
+        vec3  F = FresnelApprox(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = D * G * F;
 

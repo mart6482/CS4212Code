@@ -368,7 +368,6 @@ int main(void)
         glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, glm::value_ptr( M_view ));
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelTransform));
         glUniformMatrix4fv(normalMatrixID, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-
         // Set the light position in world space
         /*glm::vec4 lightPosWorld(3.0f, 5.0f, 2.0f, 1.0f);
         glUniform4fv(lightPosID, 1, glm::value_ptr(lightPosWorld));*/
@@ -458,15 +457,19 @@ int main(void)
         }
         else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             roughness += 0.001f;
+            std::cout << "roughness: " << roughness << std::endl;
         }
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             roughness -= 0.001f;
+            std::cout << "roughness: " << roughness << std::endl;
         }
         else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             metallic += 0.001f;
+            std::cout << "metallic: " << metallic << std::endl;
         }
         else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
             metallic -= 0.001f;
+            std::cout << "metallic: " << metallic << std::endl;
         }
         else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
             shadingMode = 2;

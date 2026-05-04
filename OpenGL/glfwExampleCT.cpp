@@ -338,7 +338,7 @@ int main(void)
         glm::vec4(-3.0f, 5.0f, 2.0f, 1.0f)
     };
 
-    float roughness = 0.7f;
+    float roughness = 0.9f;
     float metallic = 1.0f;
     glm::vec3 albedo(0.8f, 0.8f, 0.8f);
     

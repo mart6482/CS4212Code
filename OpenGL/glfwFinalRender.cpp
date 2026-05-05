@@ -76,9 +76,10 @@ void addTriangleSphere(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3
 
 void addTexturedTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec2 &uv0, const glm::vec2 &uv1, const glm::vec2 &uv2, std::vector<float> &vbo)
 {
+    glm::vec3 n = glm::normalize(glm::cross(v1 - v0, v2 - v0));
     auto push = [&](const glm::vec3 &p, const glm::vec2 &uv)
     {
-        glm::vec3 n = glm::normalize(p);
+        
         
         // position
         vbo.push_back(p.x);
@@ -182,6 +183,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
     camPTR->updateFromAngles();
 }
+
+
 int main(void)
 {
     /* Initialize the library */
@@ -278,7 +281,7 @@ int main(void)
     host_VertexBuffer.clear();
 
 
-    std::string textFilename = "textureMap.png";
+    std::string textFilename = "Skybox.png";
     std::cout << "Loading texture from file: " << textFilename << std::endl;
     png::image<png::rgb_pixel> texPNGImage;
     texPNGImage.read(textFilename);
@@ -314,7 +317,7 @@ int main(void)
     std::vector<glm::vec3> spherePositions;
 
     // central sphere position
-    glm::vec3 center(0.0f, 1.0f, -4.0f);
+    glm::vec3 center(0.0f, 1.0f, -2.0f);
 
     // ring parameters (same as raytracer)
     float radiusFromCenter = 2.0f;
@@ -362,10 +365,9 @@ int main(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
-
     //Room Cube
     std::vector<float> cube;
-    float roomSize = 6.0f;
+    float roomSize = 50.0f;
     glm::vec3 c0(-roomSize, -roomSize, -roomSize);
     glm::vec3 c1(roomSize, -roomSize, -roomSize);
     glm::vec3 c2(roomSize, roomSize, -roomSize);
@@ -375,23 +377,46 @@ int main(void)
     glm::vec3 c6(roomSize, roomSize, roomSize);
     glm::vec3 c7(-roomSize, roomSize, roomSize);
     //back face
-    addTriangle(c0, c1, c2, cube);
-    addTriangle(c0, c2, c3, cube);
+    addTexturedTriangle(c0, c1, c2,
+        {0.75f, 0.3333f}, {1.00f, 0.3333f}, {1.00f, 0.6666f}, cube);
+
+    addTexturedTriangle(c0, c2, c3,
+        {0.75f, 0.3333f}, {1.00f, 0.6666f}, {0.75f, 0.6666f}, cube);
+        
     //front face
-    addTriangle(c4, c6, c5, cube);
-    addTriangle(c4, c7, c6, cube);
+    addTexturedTriangle(c5, c4, c7,
+        {0.25f, 0.3333f}, {0.50f, 0.3333f}, {0.50f, 0.6666f}, cube);
+
+    addTexturedTriangle(c5, c7, c6,
+        {0.25f, 0.3333f}, {0.50f, 0.6666f}, {0.25f, 0.6666f}, cube);
+
     //left face
-    addTriangle(c0, c3, c7, cube);
-    addTriangle(c0, c7, c4, cube);
+    addTexturedTriangle(c4, c0, c3,
+        {0.00f, 0.3333f}, {0.25f, 0.3333f}, {0.25f, 0.6666f}, cube);
+
+    addTexturedTriangle(c4, c3, c7,
+        {0.00f, 0.3333f}, {0.25f, 0.6666f}, {0.00f, 0.6666f}, cube);
+    
     //right face
-    addTriangle(c1, c5, c6, cube);
-    addTriangle(c1, c6, c2, cube);
+    addTexturedTriangle(c1, c5, c6,
+        {0.50f, 0.3333f}, {0.75f, 0.3333f}, {0.75f, 0.6666f}, cube);
+
+    addTexturedTriangle(c1, c6, c2,
+        {0.50f, 0.3333f}, {0.75f, 0.6666f}, {0.50f, 0.6666f}, cube);
+        
     //top face
-    addTriangle(c3, c6, c7, cube);
-    addTriangle(c3, c2, c6, cube);
+    addTexturedTriangle(c3, c2, c6,
+        {0.25f, 0.6666f}, {0.50f, 0.6666f}, {0.50f, 1.000f}, cube);
+
+    addTexturedTriangle(c3, c6, c7,
+        {0.25f, 0.6666f}, {0.50f, 1.000f}, {0.25f, 1.000f}, cube);
+    
     //bottom face
-    addTriangle(c0, c4, c5, cube);
-    addTriangle(c0, c5, c1, cube);
+    addTexturedTriangle(c4, c5, c1,
+        {0.25f, 0.0000f}, {0.50f, 0.0000f}, {0.50f, 0.3333f}, cube);
+
+    addTexturedTriangle(c4, c1, c0,
+        {0.25f, 0.0000f}, {0.50f, 0.3333f}, {0.25f, 0.3333f}, cube);
 
     GLuint cubeVBO, cubeVAO;
     glGenBuffers(1, &cubeVBO);
@@ -487,7 +512,7 @@ int main(void)
 
     
 
-    glm::vec3 m_pos(0,2,5), m_viewDir(0,0,-1);
+    glm::vec3 m_pos(0,1.5,3.5), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
     GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
     camPTR = &cam;
@@ -577,18 +602,19 @@ int main(void)
         glUniform1i(useTextureID, 0); 
 
         //floor rendering
-        glUniform1i(useFlatColorID, 1); // use flat color for floor
+        /*glUniform1i(useFlatColorID, 1); // use flat color for floor
         glUniform3fv(flatColorID, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f))); // set flat color to gray
         glBindVertexArray(floorVAO);
         glm::mat4 floorModel = glm::mat4(1.0f);
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(floorModel));
         glDrawArrays(GL_TRIANGLES, 0, floor.size() / 8);
         glBindVertexArray(0);
-        glUniform1i(useFlatColorID, 0); // reset to not using flat color for spheres
+        glUniform1i(useFlatColorID, 0);*/ // reset to not using flat color for spheres
         
         //room rendering
         glUniform1i(shininessID, 64.0f); 
-        glm::vec3 roomColor(0.1f, 0.1f, 0.1f);
+        glUniform1i(useTextureID, 1);
+        glm::vec3 roomColor(0.4f, 0.4f, 0.4f);
         glUniform3fv(diffuseComponentID, 1, glm::value_ptr(roomColor));
         glm::vec3 specularRoom(0.1f, 0.1f, 0.1f);
         glUniform3fv(specularComponentID, 1, glm::value_ptr(specularRoom));
@@ -599,12 +625,13 @@ int main(void)
         glBindVertexArray(0);
         glUniform1i(shininessID, 256.0f); 
 
+        glUniform1i(useTextureID, 0);
         
 
         //sphere rendering
         glBindVertexArray(m_VAO);
         //render middle sphere
-        glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+        glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, center);
         model = glm::scale(model, glm::vec3(0.8f));
@@ -615,7 +642,7 @@ int main(void)
         //render ring of spheres
         for(int i = 0; i<spherePositions.size(); i++){
             //set color
-            glm::vec3 color = rainbow[i % rainbow.size()];
+            glm::vec3 color = rainbow[i % rainbow.size()] * 0.7f; 
             glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
             //set up values for sphere orbiting animation
             float angle = glfwGetTime() * 1.0f + i * (2.0f * 3.14159265358979323846f / spherePositions.size());

@@ -365,7 +365,7 @@ int main(void)
 
     //Room Cube
     std::vector<float> cube;
-    float roomSize = 4.0f;
+    float roomSize = 6.0f;
     glm::vec3 c0(-roomSize, -roomSize, -roomSize);
     glm::vec3 c1(roomSize, -roomSize, -roomSize);
     glm::vec3 c2(roomSize, roomSize, -roomSize);
@@ -611,16 +611,25 @@ int main(void)
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
+
         //render ring of spheres
         for(int i = 0; i<spherePositions.size(); i++){
             //set color
             glm::vec3 color = rainbow[i % rainbow.size()];
             glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
-            
+            //set up values for sphere orbiting animation
+            float angle = glfwGetTime() * 1.0f + i * (2.0f * 3.14159265358979323846f / spherePositions.size());
+            float x = center.x + radiusFromCenter * cos(angle);
+            float z = center.z + radiusFromCenter * sin(angle);
+            //set up height for bouncing animation
+            float height = 0.5f * sin(glfwGetTime() * 2.0f + angle - glfwGetTime());
+
+            glm::vec3 animatedPos = glm::vec3(x, center.y + height, z);
             //transform the sphere and draw it
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, spherePositions[i]);
+            model = glm::translate(model, animatedPos);
             model = glm::scale(model, glm::vec3(0.5f));
+
             glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         }

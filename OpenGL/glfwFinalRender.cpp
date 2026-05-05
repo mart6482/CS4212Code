@@ -365,7 +365,7 @@ int main(void)
 
     //Room Cube
     std::vector<float> cube;
-    float roomSize = 12.0f;
+    float roomSize = 4.0f;
     glm::vec3 c0(-roomSize, -roomSize, -roomSize);
     glm::vec3 c1(roomSize, -roomSize, -roomSize);
     glm::vec3 c2(roomSize, roomSize, -roomSize);
@@ -377,23 +377,18 @@ int main(void)
     //back face
     addTriangle(c0, c1, c2, cube);
     addTriangle(c0, c2, c3, cube);
-
     //front face
     addTriangle(c4, c6, c5, cube);
     addTriangle(c4, c7, c6, cube);
-
     //left face
     addTriangle(c0, c3, c7, cube);
     addTriangle(c0, c7, c4, cube);
-
     //right face
     addTriangle(c1, c5, c6, cube);
     addTriangle(c1, c6, c2, cube);
-
     //top face
     addTriangle(c3, c6, c7, cube);
     addTriangle(c3, c2, c6, cube);
-
     //bottom face
     addTriangle(c0, c4, c5, cube);
     addTriangle(c0, c5, c1, cube);
@@ -492,7 +487,7 @@ int main(void)
 
     
 
-    glm::vec3 m_pos(0,0,15), m_viewDir(0,0,-1);
+    glm::vec3 m_pos(0,2,5), m_viewDir(0,0,-1);
     glm::vec3 m_U(1,0,0), m_V(0,1,0), m_W(0,0,1);
     GLCamera cam(m_pos, m_viewDir, m_U, m_V, m_W);
     camPTR = &cam;
@@ -570,14 +565,14 @@ int main(void)
         glUniform1i(useTextureID, 1);
 
         //triangle rendering
-        glBindVertexArray(triangleVAO);
+        /*glBindVertexArray(triangleVAO);
         glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
         glm::mat4 triangleModel = glm::mat4(1.0f);
         triangleModel = glm::translate(triangleModel, glm::vec3(0.0f, 2.0f, -2.0f));
         triangleModel = glm::scale(triangleModel, glm::vec3(4.0f, 4.0f, 4.0f));
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(triangleModel));
         glDrawArrays(GL_TRIANGLES, 0, triangle.size() / 8);
-        glBindVertexArray(0);
+        glBindVertexArray(0);*/
 
         glUniform1i(useTextureID, 0); 
 
@@ -592,15 +587,18 @@ int main(void)
         glUniform1i(useFlatColorID, 0); // reset to not using flat color for spheres
         
         //room rendering
-        glm::vec3 roomColor(0.3f, 0.3f, 0.3f);
+        glUniform1i(shininessID, 64.0f); 
+        glm::vec3 roomColor(0.1f, 0.1f, 0.1f);
         glUniform3fv(diffuseComponentID, 1, glm::value_ptr(roomColor));
-        glm::vec3 specularRoom(0.2f, 0.2f, 0.2f);
+        glm::vec3 specularRoom(0.1f, 0.1f, 0.1f);
         glUniform3fv(specularComponentID, 1, glm::value_ptr(specularRoom));
         glBindVertexArray(cubeVAO);
         glm::mat4 roomModel = glm::mat4(1.0f);
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(roomModel));
         glDrawArrays(GL_TRIANGLES, 0, cube.size() / 8);
         glBindVertexArray(0);
+        glUniform1i(shininessID, 256.0f); 
+
         
 
         //sphere rendering

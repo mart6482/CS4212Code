@@ -30,6 +30,12 @@ add_executable(glfwExampleCT
   GLCamera.h
 )
 
+add_executable(glfwFinalRender
+  glfwFinalRender.cpp
+  GLSL.cpp GLSL.h
+  GLCamera.h
+)
+
 target_link_libraries (glfwExample PRIVATE GLEW::GLEW)
 target_link_libraries (glfwExample PRIVATE glfw)
 
@@ -112,4 +118,20 @@ endif()
 
 target_link_libraries (glfwExampleCT PRIVATE PNG::PNG)
 target_link_libraries (glfwExampleCT PRIVATE ZLIB::ZLIB)
+
+target_link_libraries (glfwFinalRender PRIVATE GLEW::GLEW)
+target_link_libraries (glfwFinalRender PRIVATE glfw)
+if(APPLE)
+    target_link_libraries(glfwFinalRender PRIVATE
+        "-framework OpenGL"
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework CoreVideo"
+    )
+else()
+    target_link_libraries(glfwFinalRender PRIVATE OpenGL::GL)
+endif()
+
+target_link_libraries (glfwFinalRender PRIVATE PNG::PNG)
+target_link_libraries (glfwFinalRender PRIVATE ZLIB::ZLIB)
 

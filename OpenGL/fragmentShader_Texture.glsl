@@ -12,6 +12,10 @@ uniform int useFlatColor;
 uniform vec3 flatColor;
 uniform sampler2D textureSampler;
 uniform int useTexture;
+uniform int useHeightColoring;
+uniform float yThreshold;
+uniform vec3 colorAbove;
+uniform vec3 colorBelow;
 
 in vec3 normal;
 in vec3 vertexWorldPos;
@@ -33,6 +37,12 @@ void main(void){
     vec3 N = normalize(normal);
     vec3 V = normalize(cameraPos - vertexWorldPos);
 
+    vec3 baseColor = diffuseComponent;
+    if(useHeightColoring == 1){
+        float t = smoothstep(yThreshold - 0.2, yThreshold + 0.2, vertexWorldPos.y);
+        baseColor = mix(colorBelow, colorAbove, t);
+    }
+
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < 2; i++){
@@ -41,9 +51,9 @@ void main(void){
         vec3 diffuse;
         float diff = max(dot(N, L), 0.0);
         if(useTexture == 1){
-            diffuse = diffuseComponent * texColor.rgb * diff;
+            diffuse = baseColor * texColor.rgb * diff;
         }else{
-            diffuse = diffuseComponent * diff;
+            diffuse = baseColor * diff;
         }
         
 

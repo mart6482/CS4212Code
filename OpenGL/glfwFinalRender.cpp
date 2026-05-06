@@ -494,7 +494,9 @@ int main(void)
 
     sivelab::GLSLObject* currentShader = &Shader;
     //build uniform variables
-    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, shininessID, cameraPosID, shadingModeID, useFlatColorID, flatColorID, texUnitID, useTextureID;
+    GLuint projMatrixID, viewMatrixID, modelMatrixID, normalMatrixID, lightPosID, diffuseComponentID, specularComponentID, 
+        shininessID, cameraPosID, shadingModeID, useFlatColorID, flatColorID, texUnitID, useTextureID,
+        useHeightColoringID, yThresholdID, color1ID, color2ID;
     projMatrixID = Shader.createUniform( "projMatrix" );
     viewMatrixID = Shader.createUniform( "viewMatrix" );
     modelMatrixID = Shader.createUniform( "modelMatrix" );
@@ -509,6 +511,10 @@ int main(void)
     flatColorID = Shader.createUniform( "flatColor" );
     texUnitID = Shader.createUniform("textureSampler");
     useTextureID = Shader.createUniform("useTexture");
+    useHeightColoringID = Shader.createUniform("useHeightColoring");
+    yThresholdID = Shader.createUniform("yThreshold");
+    color1ID = Shader.createUniform("colorAbove");
+    color2ID = Shader.createUniform("colorBelow");
 
     
 
@@ -524,6 +530,7 @@ int main(void)
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
     int shadingMode = 1;
+    int colorMode = 0;
     glm::vec4 lights[2]{
         glm::vec4(3.0f, 3.0f, 4.0f, 1.0f),
         glm::vec4(-3.0f, 3.0f, 4.0f, 1.0f)
@@ -612,6 +619,7 @@ int main(void)
         glUniform1i(useFlatColorID, 0);*/ // reset to not using flat color for spheres
         
         //room rendering
+        glUniform1i(useHeightColoringID, 0); // ensure height coloring is off for room
         glUniform1i(shininessID, 64.0f); 
         glUniform1i(useTextureID, 1);
         glm::vec3 roomColor(0.4f, 0.4f, 0.4f);
@@ -630,6 +638,7 @@ int main(void)
 
         //sphere rendering
         glBindVertexArray(m_VAO);
+
         //render middle sphere
         glUniform3fv(diffuseComponentID, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
         glm::mat4 model = glm::mat4(1.0f);
@@ -637,6 +646,14 @@ int main(void)
         model = glm::scale(model, glm::vec3(0.8f));
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+        //Height-based coloring
+        glm::vec3 colorAbove(1.0f, 0.5f, 0.0f); 
+        glm::vec3 colorBelow(0.0f, 0.5f, 0.5f); 
+        glUniform1i(useHeightColoringID, colorMode); // toggle height-based coloring
+        glUniform1f(yThresholdID, center.y); // set threshold to the center sphere's y position
+        glUniform3fv(color1ID, 1, glm::value_ptr(colorAbove)); 
+        glUniform3fv(color2ID, 1, glm::value_ptr(colorBelow)); 
 
 
         //render ring of spheres
@@ -651,17 +668,10 @@ int main(void)
 
             glm::vec3 animatedPos = glm::vec3(x, center.y + height, z);
 
-            //Threshold for Red vs. Blue
-            float threshold = center.y;
             
-            //set color based on height, using a smooth transition between red and blue around the threshold
-            float t = glm::clamp((animatedPos.y - thresholdY) * 2.0f, -1.0f, 1.0f);
-            t = (t + 1.0f) * 0.5f; // map to 0–1
 
-            glm::vec3 red(1,0,0);
-            glm::vec3 blue(0,0,1);
-            glm::vec3 color = glm::mix(red, blue, t);
-            //glm::vec3 color = rainbow[i % rainbow.size()] * 0.4f; 
+            //set color
+            glm::vec3 color = rainbow[i % rainbow.size()] * 0.7f; 
             glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
             //transform the sphere and draw it
             glm::mat4 model = glm::mat4(1.0f);
@@ -671,6 +681,7 @@ int main(void)
             glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         }
+
         glBindVertexArray(0);
 
         currentShader->deactivate();
@@ -706,6 +717,12 @@ int main(void)
             shadingMode = 0; 
         }else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
             shadingMode = 1;
+        }else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            std::cout << "Camera Position: " << cam.getPosition().x << ", " << cam.getPosition().y << ", " << cam.getPosition().z << std::endl;
+        }else if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+            colorMode = 1;
+        }else if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+            colorMode = 0;
         }
         
         if (glfwGetKey( window, GLFW_KEY_T ) == GLFW_PRESS) {

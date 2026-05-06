@@ -342,7 +342,6 @@ int main(void)
         {0.5f, 0.0f, 1.0f}
     };
 
-
     //Texture Square
     std::vector<float> triangle;
     glm::vec3 topLeft = glm::vec3(-1, 1, 1);
@@ -434,8 +433,8 @@ int main(void)
 
     //floor
     std::vector<float> floor;
-    float floorSize = 100.0f;
-    float floorY = -14.0f;
+    float floorSize = 5.0f;
+    float floorY = 0.0f;
     glm::vec3 v0(-floorSize, floorY, -floorSize);
     glm::vec3 v1(floorSize, floorY, -floorSize);
     glm::vec3 v2(floorSize, floorY, floorSize);
@@ -530,7 +529,7 @@ int main(void)
     float rotationAngle = 0.0f;
     float rotationSpeed = 1.0f;
     int shadingMode = 1;
-    int colorMode = 0;
+    int colorMode = 1;
     glm::vec4 lights[2]{
         glm::vec4(3.0f, 3.0f, 4.0f, 1.0f),
         glm::vec4(-3.0f, 3.0f, 4.0f, 1.0f)
@@ -579,7 +578,7 @@ int main(void)
         glUniform3fv(specularComponentID, 1, glm::value_ptr(specularComponent));
 
         // Set the shininess (Phong exponent) for the triangle
-        float shininess = 256.0f;
+        float shininess = 512.0f;
         glUniform1f(shininessID, shininess);
         glUniform1i(shadingModeID, shadingMode); 
 
@@ -616,7 +615,7 @@ int main(void)
         glUniformMatrix4fv(modelMatrixID, 1, GL_FALSE, glm::value_ptr(floorModel));
         glDrawArrays(GL_TRIANGLES, 0, floor.size() / 8);
         glBindVertexArray(0);
-        glUniform1i(useFlatColorID, 0);*/ // reset to not using flat color for spheres
+        glUniform1i(useFlatColorID, 0); // reset to not using flat color for spheres*/
         
         //room rendering
         glUniform1i(useHeightColoringID, 0); // ensure height coloring is off for room
@@ -654,6 +653,7 @@ int main(void)
         glUniform1f(yThresholdID, center.y); // set threshold to the center sphere's y position
         glUniform3fv(color1ID, 1, glm::value_ptr(colorAbove)); 
         glUniform3fv(color2ID, 1, glm::value_ptr(colorBelow)); 
+        
 
 
         //render ring of spheres

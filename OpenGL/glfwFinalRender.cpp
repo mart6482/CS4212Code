@@ -641,9 +641,7 @@ int main(void)
 
         //render ring of spheres
         for(int i = 0; i<spherePositions.size(); i++){
-            //set color
-            glm::vec3 color = rainbow[i % rainbow.size()] * 0.7f; 
-            glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
+        
             //set up values for sphere orbiting animation
             float angle = glfwGetTime() * 1.0f + i * (2.0f * 3.14159265358979323846f / spherePositions.size());
             float x = center.x + radiusFromCenter * cos(angle);
@@ -652,6 +650,19 @@ int main(void)
             float height = 0.5f * sin(glfwGetTime() * 2.0f + angle - glfwGetTime());
 
             glm::vec3 animatedPos = glm::vec3(x, center.y + height, z);
+
+            //Threshold for Red vs. Blue
+            float threshold = center.y;
+            
+            //set color based on height, using a smooth transition between red and blue around the threshold
+            float t = glm::clamp((animatedPos.y - thresholdY) * 2.0f, -1.0f, 1.0f);
+            t = (t + 1.0f) * 0.5f; // map to 0–1
+
+            glm::vec3 red(1,0,0);
+            glm::vec3 blue(0,0,1);
+            glm::vec3 color = glm::mix(red, blue, t);
+            //glm::vec3 color = rainbow[i % rainbow.size()] * 0.4f; 
+            glUniform3fv(diffuseComponentID, 1, glm::value_ptr(color));
             //transform the sphere and draw it
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, animatedPos);

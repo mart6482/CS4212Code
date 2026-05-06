@@ -47,6 +47,7 @@ B - swap to Blinn-Phong shader
 L - swap to Lambertian shader
 Up/Down Arrow - increase/decrease roughness (Cook-Torrance)
 Left/Right Arrow - increase/decreas metallic factor (Cook-Torrance)
+H/J - Turn Height-Based Shading on/off
 
 Silver Level Programming Skill Dev Assignment - Side-By-Side Comparison Analysis
 

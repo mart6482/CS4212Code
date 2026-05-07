@@ -431,8 +431,8 @@ int main(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
-    //floor
-    std::vector<float> floor;
+    //floor (unused for this project)
+    /*std::vector<float> floor;
     float floorSize = 5.0f;
     float floorY = 0.0f;
     glm::vec3 v0(-floorSize, floorY, -floorSize);
@@ -456,7 +456,7 @@ int main(void)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glBindVertexArray(0);
+    glBindVertexArray(0);*/
 
     //VAO for the VBO
     // create a vertex array object that will map the attributes in                                         
@@ -723,6 +723,10 @@ int main(void)
             colorMode = 1;
         }else if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
             colorMode = 0;
+        }else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            cam.setPosition(cam.getPosition() + cam.getV() * moveRatePerFrame);
+        }else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            cam.setPosition(cam.getPosition() - cam.getV() * moveRatePerFrame);
         }
         
         if (glfwGetKey( window, GLFW_KEY_T ) == GLFW_PRESS) {
